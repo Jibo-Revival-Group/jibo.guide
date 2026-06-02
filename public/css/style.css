@@ -566,6 +566,26 @@ tr:hover td { background: var(--surface); color: var(--text); }
   color: var(--accent);
 }
 
+/* ── Guide images ── */
+.guide-img {
+  display: block;
+  max-width: 100%;
+  width: 480px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin: 1.2em 0;
+}
+
+.guide-img-wrap {
+  margin: 1.4em 0;
+}
+
+.guide-img-caption {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
 /* ══════════════════════════════════════
    LANDING PAGE HERO
 ══════════════════════════════════════ */

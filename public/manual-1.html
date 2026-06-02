@@ -95,16 +95,30 @@
         read/write access to the eMMC storage. We use this to dump and modify the firmware.
       </p>
 
+      <p>
+        The USB port, Reset button, and RCM button are all located behind the
+        <strong>circular panel on the back of Jibo's head</strong>. Remove or swing open
+        that panel to access them.
+      </p>
+
+      <div class="guide-img-wrap">
+        <img class="guide-img" src="/assets/jibo-rcm.webp"
+             alt="Back panel of Jibo's head showing the micro-USB port at the top, the Reset button (upper circle), and the RCM button (lower circle)">
+        <p class="guide-img-caption">Back panel of Jibo's head. The micro-USB port is at the top; Reset and RCM buttons are circled.</p>
+      </div>
+
       <ol class="steps">
         <li>
-          Plug the micro-USB cable from your Linux machine into the micro-USB port on
-          Jibo's base.
+          Open the panel on the <strong>back of Jibo's head</strong> to expose the ports.
+          Plug your micro-USB data cable from your Linux machine into the
+          <strong>micro-USB port</strong> at the top of the panel.
         </li>
         <li>
-          <strong>Hold the RCM button</strong> (a small pinhole button on Jibo's base —
-          use a paperclip or SIM ejector pin) while you press the <strong>reset button</strong>
-          (or the power button if Jibo is off). Jibo will show a <strong>red light</strong>
-          on his face ring and will <em>not</em> boot up normally. This is correct.
+          <strong>Hold the RCM button</strong> (the lower of the two circled buttons —
+          a small rubber button) while pressing the <strong>Reset button</strong>
+          (the upper button, also small and rubber).
+          Jibo will show a <strong>red light</strong> on his face ring and will
+          <em>not</em> boot normally. This is correct.
         </li>
         <li>
           Verify Jibo is in RCM mode on your Linux machine:
