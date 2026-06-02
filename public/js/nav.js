@@ -32,10 +32,11 @@ const NAV_PAGES = [
 ];
 
 // Flatten for prev/next navigation
+// prevId / nextId override the array position when the two routes branch
 const FLAT_PAGES = [
   { id: 'welcome',          url: '/index.html',          title: 'Welcome' },
-  { id: 'automod',          url: '/automod.html',         title: 'Route A — Automated Installer' },
-  { id: 'manual-1',         url: '/manual-1.html',        title: '1. Environment Setup' },
+  { id: 'automod',          url: '/automod.html',         title: 'Route A — Automated Installer', prevId: 'welcome', nextId: 'post-mod' },
+  { id: 'manual-1',         url: '/manual-1.html',        title: '1. Environment Setup',           prevId: 'welcome' },
   { id: 'manual-2',         url: '/manual-2.html',        title: '2. Dump the eMMC' },
   { id: 'manual-3',         url: '/manual-3.html',        title: '3. Flash & First Boot' },
   { id: 'post-mod',         url: '/post-mod.html',        title: 'SSH & Next Steps' },
@@ -106,22 +107,30 @@ function buildPageNav() {
   const idx = FLAT_PAGES.findIndex(p => p.id === currentId);
   if (idx < 0) return;
 
+  const current = FLAT_PAGES[idx];
+
+  const prevPage = current.prevId
+    ? FLAT_PAGES.find(p => p.id === current.prevId)
+    : idx > 0 ? FLAT_PAGES[idx - 1] : null;
+
+  const nextPage = current.nextId
+    ? FLAT_PAGES.find(p => p.id === current.nextId)
+    : idx < FLAT_PAGES.length - 1 ? FLAT_PAGES[idx + 1] : null;
+
   let html = '';
-  if (idx > 0) {
-    const prev = FLAT_PAGES[idx - 1];
-    html += `<a href="${prev.url}" class="prev">
+  if (prevPage) {
+    html += `<a href="${prevPage.url}" class="prev">
       <span class="nav-dir">← Previous</span>
-      <span class="nav-title">${prev.title}</span>
+      <span class="nav-title">${prevPage.title}</span>
     </a>`;
   } else {
     html += `<div></div>`;
   }
 
-  if (idx < FLAT_PAGES.length - 1) {
-    const next = FLAT_PAGES[idx + 1];
-    html += `<a href="${next.url}" class="next">
+  if (nextPage) {
+    html += `<a href="${nextPage.url}" class="next">
       <span class="nav-dir">Next →</span>
-      <span class="nav-title">${next.title}</span>
+      <span class="nav-title">${nextPage.title}</span>
     </a>`;
   }
 
