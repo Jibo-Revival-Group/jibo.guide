@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1. Environment Setup · Route B Manual · jibo.guide</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+    <main>
+      <div class="page-progress-wrap"></div>
+
+      <h1>Route B — Step 1: Environment Setup</h1>
+
+      <p>
+        This is the manual route. You'll do every step by hand — which means you'll
+        understand exactly what's happening and can debug any issues. By the end of these
+        three pages, Jibo will be booted in developer mode with SSH access.
+      </p>
+
+      <div class="callout danger">
+        <div class="callout-title">🚨 Read Before Proceeding</div>
+        <p>
+          By following this guide you acknowledge that <strong>all actions are taken entirely
+          at your own risk</strong>. The Jibo Revival Group, the authors of jibo.guide, and
+          all community contributors are <strong>not responsible or liable</strong> for any
+          damage, data loss, or permanent malfunction to your device. This process involves
+          low-level hardware access and direct modification of your robot's firmware storage.
+          If you are unsure about any step, ask for help on the
+          <a href="https://discord.gg/jibo">Discord</a> before continuing.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ About ShofEL2</div>
+        <p>
+          This guide uses a specific fork of ShofEL2 —
+          <strong>devsparx's improvements branch</strong>. Do not use other forks.
+          If the repo changes, the Discord <strong>#modding</strong> channel will have
+          updated links.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>What You Need</h2>
+
+      <ul>
+        <li>A Linux machine (spare laptop, Raspberry Pi, desktop PC — anything with at least
+            <strong>32 GB free storage</strong>). CachyOS, Arch, Ubuntu, Debian all work.
+            This guide uses CachyOS with a 6.x kernel, but you don't need to replicate that.</li>
+        <li>A <strong>micro-USB cable that you know is a data cable</strong> (not charge-only —
+            many phone charger cables are charge-only and will not work)</li>
+        <li>Your <strong>Jibo's IP address</strong> — look this up <em>before</em> you start
+            and write it down somewhere</li>
+        <li>About <strong>4–5 hours</strong> of patience</li>
+        <li>Basic familiarity with the Linux terminal</li>
+      </ul>
+
+      <div class="callout danger">
+        <div class="callout-title">🚨 Note your Jibo's IP address now</div>
+        <p>
+          You'll need Jibo's IP to SSH in after the mod. If you forget it, you'll have to
+          redo hours of work. Check your router's device list or Jibo's settings screen
+          (cog → Info → Network) and write it down.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Part 1 — Connect Jibo via USB (RCM Mode)</h2>
+
+      <p>
+        Jibo's NVIDIA Tegra K1 chipset has a Recovery Mode (RCM) that allows direct USB
+        read/write access to the eMMC storage. We use this to dump and modify the firmware.
+      </p>
+
+      <ol class="steps">
+        <li>
+          Plug the micro-USB cable from your Linux machine into the micro-USB port on
+          Jibo's base.
+        </li>
+        <li>
+          <strong>Hold the RCM button</strong> (a small pinhole button on Jibo's base —
+          use a paperclip or SIM ejector pin) while you press the <strong>reset button</strong>
+          (or the power button if Jibo is off). Jibo will show a <strong>red light</strong>
+          on his face ring and will <em>not</em> boot up normally. This is correct.
+        </li>
+        <li>
+          Verify Jibo is in RCM mode on your Linux machine:
+          <pre class="shell-block"><code><span class="prompt">$ </span>lsusb</code></pre>
+          You should see a line like this:
+          <pre><code>Bus 001 Device 007: ID 0955:7740 NVIDIA Corp. APX</code></pre>
+          The important part is <code>0955:7740</code>. If you see <code>0955:9134</code>
+          instead, that's an alternative PID that some units show briefly — try unplugging
+          and re-entering RCM.
+        </li>
+      </ol>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Don't see the APX device?</div>
+        <ul>
+          <li>Try a different USB cable — charge-only cables are the #1 cause of this</li>
+          <li>Try a different USB port (avoid USB hubs)</li>
+          <li>Make sure you held the RCM button the whole time while pressing reset</li>
+          <li>Check the <a href="/troubleshooting.html">Troubleshooting</a> page for more help</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Part 2 — Install Dependencies</h2>
+
+      <p>Install the build tools and libraries ShofEL2 requires:</p>
+
+      <p><strong>Arch / CachyOS / Manjaro:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo pacman -S --needed base-devel libusb git python python-pip</code></pre>
+
+      <p><strong>Ubuntu / Debian / Raspberry Pi OS:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo apt update
+<span class="prompt">$ </span>sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip</code></pre>
+
+      <p><strong>Fedora:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo dnf groupinstall "Development Tools"
+<span class="prompt">$ </span>sudo dnf install libusb1-devel python3-pip</code></pre>
+
+      <hr>
+
+      <h2>Part 3 — Clone and Build ShofEL2</h2>
+
+      <p>
+        We use a Jibo-specific fork of ShofEL2 (the Fusée Gelée exploit adapted for the
+        Tegra K1 / T124). Clone it from devsparx's <code>improvements/IncreasedUSBReadWriteSpeed</code>
+        branch:
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~
+<span class="prompt">$ </span>git clone -b improvements/IncreasedUSBReadWriteSpeed \
+    https://github.com/devsparx/ShofEL2-for-T124.git
+<span class="prompt">$ </span>cd ShofEL2-for-T124/
+<span class="prompt">$ </span>make</code></pre>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ "Error code 1" from make</div>
+        <p>
+          If <code>make</code> exits with error code 1, don't panic. Check whether a
+          <code>shofel2_t124</code> executable was created in the directory:
+        </p>
+        <pre><code><span class="prompt">$ </span>ls -la shofel2_t124</code></pre>
+        <p>If the file exists, the build succeeded. The error is a known quirk of the
+        Makefile's exit handling.</p>
+      </div>
+
+      <p>Verify the build:</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>./shofel2_t124 --help</code></pre>
+
+      <hr>
+
+      <p>
+        Your environment is ready. Continue to the next step to dump Jibo's eMMC.
+      </p>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'manual-1';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

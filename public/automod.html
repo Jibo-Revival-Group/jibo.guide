@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Route A — Automated Installer · jibo.guide</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+    <main>
+      <h1>Route A — Automated Installer</h1>
+
+      <p>
+        The <strong>JiboAutoMod</strong> tool automates everything that Route B does by hand:
+        building ShofEL2, dumping the eMMC, locating the <code>/var</code> partition, patching
+        <code>mode.json</code>, and writing it back. It includes both a CLI and an optional
+        graphical interface.
+      </p>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ What this does under the hood</div>
+        <p>
+          JiboAutoMod performs the exact same steps as the Manual Route — it just handles
+          the partition math, loop-mount, and hex conversion for you. If something goes
+          wrong, the <a href="/troubleshooting.html">Troubleshooting</a> page and the
+          <a href="/manual-1.html">Manual Route</a> explain every step in detail.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Requirements</h2>
+
+      <ul>
+        <li>A <strong>Linux</strong> machine (recommended) — any distro with <code>apt</code>, <code>pacman</code>, or <code>dnf</code>.
+          Windows via MSYS2 also works — see Windows notes below.</li>
+        <li>At least <strong>32 GB of free disk space</strong> (for the eMMC dump; fast mode uses ~500 MB)</li>
+        <li>A <strong>micro-USB data cable</strong> — must be a data cable, not a charge-only cable</li>
+        <li>Your <strong>Jibo's IP address</strong> (needed after modding for the update step)</li>
+        <li><strong>Python 3.8+</strong>, <code>git</code>, <code>gcc</code>, <code>make</code>, and <code>libusb</code> dev headers</li>
+        <li>About <strong>1–4 hours</strong> depending on whether you do a full dump or fast mode</li>
+      </ul>
+
+      <div class="callout danger">
+        <div class="callout-title">🚨 Before you start — note your Jibo's IP</div>
+        <p>
+          Make sure you know Jibo's IP address <em>before</em> you begin. You'll need it to
+          SSH in after the mod. Check your router's DHCP table or use Jibo's settings screen
+          (tap the settings cog → Info → network details).
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Step 1 — Get the Tool</h2>
+
+      <p>Clone the JiboAutoMod repository from GitHub:</p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>git clone https://github.com/Jibo-Revival-Group/JiboAutoMod.git
+<span class="prompt">$ </span>cd JiboAutoMod</code></pre>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Can't find the repo?</div>
+        <p>
+          Join the <a href="https://discord.gg/jibo" target="_blank">Jibo Revival Discord</a>
+          and ask in the <strong>#modding</strong> channel for the current repo link. The
+          community keeps pinned resources up to date.
+        </p>
+      </div>
+
+      <h2>Step 2 — Install Dependencies</h2>
+
+      <p>Pick the command for your OS:</p>
+
+      <p><strong>Arch / CachyOS / Manjaro:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo pacman -S --needed base-devel libusb git python python-pip</code></pre>
+
+      <p><strong>Ubuntu / Debian / Raspberry Pi OS:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo apt update
+<span class="prompt">$ </span>sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip</code></pre>
+
+      <p><strong>Fedora:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo dnf groupinstall "Development Tools"
+<span class="prompt">$ </span>sudo dnf install libusb1-devel python3-pip</code></pre>
+
+      <h2>Step 3 — Put Jibo in RCM Mode</h2>
+
+      <p>
+        Jibo has a hidden Recovery Mode (RCM) that lets us read and write the eMMC
+        over USB. Here's how to enter it:
+      </p>
+
+      <ol class="steps">
+        <li>Plug your micro-USB cable from your computer into the port on Jibo's base.</li>
+        <li>
+          <strong>Hold the RCM button</strong> (a small pinhole on Jibo's base — you may
+          need a paperclip or SIM tool) while pressing the <strong>reset button</strong>
+          (or the power button if Jibo is off).
+        </li>
+        <li>
+          Jibo will show a <strong>red light</strong> on his face ring and will
+          <em>not</em> boot normally. This means RCM mode is active.
+        </li>
+        <li>
+          Confirm on your computer:
+          <pre class="shell-block"><code><span class="prompt">$ </span>lsusb | grep NVIDIA
+Bus 001 Device 007: ID 0955:7740 NVIDIA Corp. APX</code></pre>
+          You must see the entry with <code>0955:7740</code> before continuing.
+        </li>
+      </ol>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ USB permissions on Linux</div>
+        <p>
+          If <code>lsusb</code> shows the device but the tool can't open it, run the
+          tool with <code>sudo</code> or install the udev rule from the repo
+          (<code>99-jibo-rcm.rules</code>):
+        </p>
+        <pre><code>sudo cp 99-jibo-rcm.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</code></pre>
+      </div>
+
+      <h2>Step 4 — Run the Installer</h2>
+
+      <p>Launch the bash launcher and choose your mode:</p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>chmod +x jibo_automod.sh
+<span class="prompt">$ </span>./jibo_automod.sh</code></pre>
+
+      <p>The launcher will ask whether you want <strong>CLI mode</strong> (recommended) or
+      <strong>GUI mode</strong> (optional Qt interface). Both run the same logic.</p>
+
+      <h3>CLI Mode — Default (Full Mod)</h3>
+      <p>Just press Enter to use the full workflow, which dumps the entire eMMC (~15 GB, takes 2–4 hours):</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_automod.py</code></pre>
+
+      <h3>CLI Mode — Fast (Recommended if disk space is tight)</h3>
+      <p>
+        Fast mode reads only the GPT header and the <code>/var</code> partition (~500 MB),
+        patches <code>mode.json</code>, and writes back only the changed sectors. Much faster
+        but skips the full system backup:
+      </p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_automod.py --mode-json-only</code></pre>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Back up your Jibo</div>
+        <p>
+          The eMMC contains your Jibo's <strong>calibration data</strong> — unique to your unit.
+          If you have the disk space, run the full dump at least once and keep
+          <code>jibo_work/var_partition_backup.bin</code> somewhere safe.
+        </p>
+      </div>
+
+      <h2>Step 5 — Wait for Completion</h2>
+
+      <p>
+        The tool will print progress as it works. When it's done, you'll see a summary
+        and (optionally) an MD5 hash verification confirming the write succeeded.
+      </p>
+
+      <p>
+        When finished, <strong>unplug the USB cable</strong>, then hold Jibo's power button
+        until the red LED goes off, and power him back on normally.
+      </p>
+
+      <h2>Step 6 — First Boot</h2>
+
+      <p>
+        Instead of his normal startup animation, Jibo will show a
+        <strong>large checkmark</strong> on his display. This means he has booted into
+        <code>int-developer</code> mode successfully.
+      </p>
+
+      <div class="callout note">
+        <div class="callout-title">✅ You're in!</div>
+        <p>SSH into Jibo from your computer:</p>
+        <pre><code>ssh root@&lt;jibo-ip&gt;
+<span style="color:#8b949e"># password: jibo</span></code></pre>
+        <p>You now have full root access to your Jibo.</p>
+      </div>
+
+      <p>
+        Head to <a href="/post-mod.html">SSH &amp; Next Steps</a> to learn what to do now,
+        including installing the JiboOS community update.
+      </p>
+
+      <hr>
+
+      <h2>Windows Notes</h2>
+
+      <p>Windows is supported but requires extra setup:</p>
+
+      <ol>
+        <li>
+          Install <a href="https://www.msys2.org/" target="_blank">MSYS2</a> and run:
+          <pre><code>pacman -S --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb python3 git e2fsprogs</code></pre>
+        </li>
+        <li>
+          Use <a href="https://zadig.akeo.ie/" target="_blank">Zadig</a> to replace the
+          driver for the <strong>NVIDIA APX (0955:7740)</strong> device with
+          <strong>WinUSB</strong>. Without this, ShofEL2 cannot communicate with Jibo.
+        </li>
+        <li>
+          Run the installer as <strong>Administrator</strong>:
+          <pre><code>jibo_automod.bat</code></pre>
+        </li>
+      </ol>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ WSL2 alternative</div>
+        <p>
+          Many Windows users find it easier to use <strong>WSL2</strong> and follow the Linux
+          path. You'll still need USB passthrough into WSL — see the
+          <a href="https://learn.microsoft.com/en-us/windows/wsl/connect-usb" target="_blank">
+          Microsoft usbipd-win guide</a>.
+        </p>
+      </div>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'automod';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

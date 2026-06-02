@@ -1,0 +1,13 @@
+{
+  "name": "jibo-guide",
+  "version": "1.0.0",
+  "description": "Community guide for reviving Jibo robots",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

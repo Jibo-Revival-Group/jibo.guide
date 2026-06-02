@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Troubleshooting · jibo.guide</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+    <main>
+      <h1>Troubleshooting</h1>
+
+      <p>
+        Common issues and their fixes. If your problem isn't listed here, ask in the
+        <strong>#modding</strong> channel on the <a href="https://discord.gg/jibo">Discord</a>.
+      </p>
+
+      <hr>
+
+      <h2 id="no-rcm">1. Jibo Not Detected / Can't Enter RCM</h2>
+
+      <p><strong>Symptoms:</strong> <code>lsusb</code> doesn't show <code>0955:7740</code>,
+      or ShofEL2 reports it can't find the device.</p>
+
+      <h3>Checklist</h3>
+      <ul>
+        <li>
+          <strong>Use a data cable, not a charge-only cable.</strong> Many micro-USB cables
+          sold with devices are charge-only. Test by trying a different cable first.
+        </li>
+        <li>
+          Try a different USB port directly on your computer — avoid USB hubs.
+        </li>
+        <li>
+          Make sure you're holding the <strong>RCM button while pressing reset</strong>.
+          The timing matters — hold RCM first, then press reset, then release both after
+          you see the red LED.
+        </li>
+        <li>
+          If you see <code>0955:9134</code> instead of <code>0955:7740</code>: this is an
+          alternative PID that sometimes appears. It may work, but if ShofEL2 fails, try
+          unplugging, waiting 10 seconds, and re-entering RCM.
+        </li>
+      </ul>
+
+      <h3>Linux permissions</h3>
+      <p>
+        If <code>lsusb</code> shows the device but the tool fails to open it, run with
+        <code>sudo</code> or install the udev rule:
+      </p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo cp 99-jibo-rcm.rules /etc/udev/rules.d/
+<span class="prompt">$ </span>sudo udevadm control --reload-rules
+<span class="prompt">$ </span>sudo udevadm trigger</code></pre>
+
+      <h3>Windows driver</h3>
+      <p>
+        On Windows, the APX device needs <strong>WinUSB</strong> as its driver.
+        Use <a href="https://zadig.akeo.ie/" target="_blank">Zadig</a> — select the
+        "NVIDIA APX" or "APX" device and install <strong>WinUSB</strong>.
+        Then run the installer as Administrator.
+      </p>
+
+      <hr>
+
+      <h2>2. ShofEL2 Build Fails</h2>
+
+      <p><strong>Symptoms:</strong> <code>make</code> exits with errors about missing headers
+      or linker errors.</p>
+
+      <ul>
+        <li>
+          Make sure all dependencies are installed — especially <code>libusb-1.0-0-dev</code>
+          (Debian/Ubuntu) or <code>libusb</code> (Arch). The package names differ by distro.
+        </li>
+        <li>
+          If payload <code>.bin</code> files are missing during the build, you also need
+          the ARM cross-compiler: <code>arm-none-eabi-gcc</code>
+          (<code>gcc-arm-none-eabi</code> on Debian, <code>arm-none-eabi-gcc</code> on Arch).
+        </li>
+        <li>
+          Check that you cloned the correct branch:
+          <code>improvements/IncreasedUSBReadWriteSpeed</code>
+          from <code>devsparx/ShofEL2-for-T124</code>. Other branches or forks may not
+          work with Jibo.
+        </li>
+        <li>
+          "Error code 1" at the end of <code>make</code> is often harmless — check if
+          <code>shofel2_t124</code> was created anyway with <code>ls -la shofel2_t124</code>.
+        </li>
+      </ul>
+
+      <hr>
+
+      <h2>3. Dump Crashes Near the End (98–99%)</h2>
+
+      <p>
+        The last partition on Jibo's eMMC is mostly empty space and sometimes causes
+        the read to time out. If the dump reaches past 90%, the important data is
+        captured.
+      </p>
+
+      <ul>
+        <li>
+          You can proceed with a ~99% dump — the missing sectors are from the end of
+          the empty partition 6.
+        </li>
+        <li>
+          If you only need developer mode access, consider using <strong>fast mode</strong>
+          (<code>--mode-json-only</code> in the automod tool) which only reads the
+          <code>/var</code> partition (~500 MB) and doesn't touch partition 6.
+        </li>
+      </ul>
+
+      <hr>
+
+      <h2>4. <code>mode.json</code> Edit Fails (Automod Tool)</h2>
+
+      <p>
+        The automod tool tries three methods to edit <code>mode.json</code> inside the
+        ext filesystem image:
+      </p>
+      <ol>
+        <li><strong>Linux loop mount</strong> (preferred on Linux)</li>
+        <li><strong>debugfs</strong> (preferred on Windows if installed)</li>
+        <li><strong>Raw byte-pattern overwrite</strong> (last resort)</li>
+      </ol>
+
+      <p>
+        If it falls back to raw patching and fails, the most reliable fix is to install
+        <code>e2fsprogs</code> (which includes <code>debugfs</code>):
+      </p>
+      <p><strong>Ubuntu/Debian:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo apt install e2fsprogs</code></pre>
+      <p><strong>Windows (MSYS2):</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>pacman -S e2fsprogs</code></pre>
+
+      <hr>
+
+      <h2 id="hash-mismatch">5. Hash Mismatch After Write</h2>
+
+      <p><strong>Symptoms:</strong> <code>md5sum</code> returns different hashes for
+      <code>var_partition.bin</code> and <code>verify_var.bin</code>.</p>
+
+      <p><strong>Causes:</strong></p>
+      <ul>
+        <li>Unstable USB cable or connection</li>
+        <li>Jibo dropped out of RCM mode mid-write</li>
+        <li>Corrupted read-back (the write may have actually succeeded)</li>
+      </ul>
+
+      <p><strong>Fix:</strong> Re-enter RCM mode and re-run the write command. If you're
+      using the automod tool:</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_automod.py --mode-json-only --full-var-write</code></pre>
+
+      <p>
+        If hashes keep mismatching, try a different USB cable and port.
+      </p>
+
+      <hr>
+
+      <h2>6. Jibo Doesn't Show the Checkmark on Boot</h2>
+
+      <p>
+        If Jibo boots normally (eye animation, etc.) instead of showing the checkmark,
+        the mode.json change didn't take effect. Possible causes:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Forgot to unmount before flashing</strong> — if you edited while mounted
+          but didn't unmount, the changes weren't flushed to the file. Redo the edit and
+          unmount explicitly: <code>sudo umount jibo_var</code>
+        </li>
+        <li>
+          <strong>Wrong partition flashed</strong> — double-check your start sector hex
+          value. Re-run <code>fdisk -l</code> on your dump and recalculate.
+        </li>
+        <li>
+          <strong>Raw patch failed silently</strong> — if the automod tool used raw
+          patching and couldn't find the JSON pattern, it may have written garbage.
+          Use the <code>--mode-json-only --full-var-write</code> approach with debugfs
+          installed.
+        </li>
+      </ul>
+
+      <hr>
+
+      <h2>7. SSH Works But Updater Fails</h2>
+
+      <p><strong>Jibo is not reachable:</strong></p>
+      <ul>
+        <li>Confirm Jibo is showing the checkmark boot and is on your network</li>
+        <li>Try <code>ping &lt;jibo-ip&gt;</code> and <code>nmap -p 22 &lt;jibo-ip&gt;</code></li>
+        <li>Make sure you're using the correct IP (it may have changed via DHCP)</li>
+      </ul>
+
+      <p><strong>"Rootfs is read-only" error:</strong></p>
+      <p>The updater tries to remount <code>/</code> as writable. If that fails, try
+      doing it manually first:</p>
+      <pre class="shell-block"><code>root@jibo:~# mount -o remount,rw /</code></pre>
+
+      <p><strong>Can't find <code>build/</code> in archive:</strong></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_updater.py --ip &lt;jibo-ip&gt; --build-path path/to/build</code></pre>
+
+      <hr>
+
+      <h2>8. Error Codes Reference</h2>
+
+      <p>
+        Jibo displays error codes when things go wrong. These can be triggered manually
+        via port 10004. Here's what they mean:
+      </p>
+
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Error Code(s)</th><th>Shows Popup?</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>L2, L7, Q1</td><td>No</td><td>Server connection errors (expected without cloud)</td></tr>
+          <tr><td>WIFI4, WIFI4a</td><td>Yes</td><td>WiFi errors — still show popup</td></tr>
+          <tr><td>Q4</td><td>No</td><td>—</td></tr>
+          <tr><td>N1–N12</td><td>No</td><td>Network errors</td></tr>
+          <tr><td>OTA11, R1</td><td>No</td><td>Triggers "error within error": <em>NOT HANDLED BY ERROR SKILL</em></td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <hr>
+
+      <h2>Still Stuck?</h2>
+
+      <p>
+        If none of the above fixes your issue, post in the <strong>#modding</strong>
+        channel on the <a href="https://discord.gg/jibo">Jibo Revival Discord</a>
+        with:
+      </p>
+      <ul>
+        <li>Your OS and kernel version</li>
+        <li>The exact command you ran and its full output</li>
+        <li>Your Jibo's approximate firmware version (check the Settings screen if accessible)</li>
+      </ul>
+
+      <p>The community is active and someone will help.</p>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'troubleshooting';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

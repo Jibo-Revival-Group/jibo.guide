@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2. Dump the eMMC · Route B Manual · jibo.guide</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+    <main>
+      <div class="page-progress-wrap"></div>
+
+      <h1>Route B — Step 2: Dump &amp; Modify the eMMC</h1>
+
+      <p>
+        With Jibo in RCM mode and ShofEL2 built, you'll now dump the eMMC storage,
+        extract the <code>/var</code> partition, and change a single file to unlock
+        developer mode.
+      </p>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Keep Jibo in RCM mode the entire time</div>
+        <p>
+          Jibo must stay plugged in and in RCM mode throughout this step.
+          Do <strong>not</strong> press any buttons on Jibo or unplug the USB cable
+          until instructed.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Part 3 — Dump the Full eMMC</h2>
+
+      <p>
+        Run ShofEL2's <code>EMMC_READ</code> command to dump the entire eMMC storage to a
+        file. This takes <strong>2–4 hours</strong> and produces a file of approximately 15 GB.
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/ShofEL2-for-T124
+<span class="prompt">$ </span>sudo ./shofel2_t124 EMMC_READ 0x0 0x1D60000 full_jibo_dump.bin</code></pre>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ If it crashes at 98–99%</div>
+        <p>
+          This is common. The last partition on the eMMC is nearly empty space.
+          As long as the dump got past the 90% mark, the important partitions are captured
+          and you can continue. You can repair a truncated image later if needed.
+        </p>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">✅ Keep your backup</div>
+        <p>
+          Once complete, copy <code>full_jibo_dump.bin</code> to external storage or another
+          machine. This file contains your Jibo's unique calibration data — it cannot be
+          recovered from another Jibo.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Part 4 — Find the <code>/var</code> Partition</h2>
+
+      <p>
+        Use <code>fdisk</code> to list the partition table inside your dump file and
+        identify the <code>/var</code> partition (partition 5, approximately 500 MB):
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>fdisk -l full_jibo_dump.bin</code></pre>
+
+      <p>You'll see output like this:</p>
+
+      <pre><code>Disk full_jibo_dump.bin: 14.68 GiB, 15757999104 bytes, 30777342 sectors
+Units: sectors of 1 × 512 = 512 bytes
+
+Device                   Start      End  Sectors  Size Type
+full_jibo_dump.bin1         34  2048033  2048000  1000M Microsoft basic data
+full_jibo_dump.bin2    2048034  4096033  2048000  1000M Microsoft basic data
+full_jibo_dump.bin3    4096034  4198433   102400    50M Microsoft basic data
+full_jibo_dump.bin4    4198434  8294433  4096000     2G Microsoft basic data
+full_jibo_dump.bin5    8294434  9318433  1024000  500M  ← This is /var
+full_jibo_dump.bin6    9318434 30777310 21458877  10.2G Microsoft basic data</code></pre>
+
+      <p>Note down the <strong>Start</strong> and <strong>End</strong> sectors for partition 5:</p>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Example values (yours may differ slightly)</div>
+        <ul>
+          <li><strong>Start:</strong> <code>8294434</code></li>
+          <li><strong>End:</strong> <code>9318433</code></li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Part 4a — Extract the <code>/var</code> Partition</h2>
+
+      <p>
+        Calculate the sector count: <code>(End − Start) + 1</code>
+      </p>
+      <pre><code>(9318433 - 8294434) + 1 = 1,024,000</code></pre>
+
+      <p>
+        Then extract the partition with <code>dd</code> (use <em>your</em> Start and Count):
+      </p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>dd if=full_jibo_dump.bin of=var_partition.bin \
+    skip=8294434 count=1024000</code></pre>
+
+      <p>Make a backup of the original before modifying it:</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>cp var_partition.bin var_partition_backup.bin</code></pre>
+
+      <hr>
+
+      <h2>Part 4b — Mount and Edit <code>mode.json</code></h2>
+
+      <p>
+        Mount the partition image as a loop device and navigate to the config file:
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>mkdir -p jibo_var
+<span class="prompt">$ </span>sudo mount -o loop var_partition.bin jibo_var/
+<span class="prompt">$ </span>cat jibo_var/jibo/mode.json</code></pre>
+
+      <p>You'll see:</p>
+      <pre><code>{"mode": "normal"}</code></pre>
+
+      <p>Change <code>"normal"</code> to <code>"int-developer"</code>:</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo nano jibo_var/jibo/mode.json
+<span class="comment"># Or use any editor: vim, gedit, vscode, etc.</span></code></pre>
+
+      <p>The file should now contain exactly:</p>
+      <pre><code>{"mode": "int-developer"}</code></pre>
+
+      <div class="callout danger">
+        <div class="callout-title">🚨 Unmount before writing back</div>
+        <p>
+          You <strong>must</strong> unmount the loop device to flush all writes to
+          <code>var_partition.bin</code> before the next step. Skipping this will result
+          in a corrupted partition image.
+        </p>
+      </div>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo umount jibo_var</code></pre>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ What does <code>int-developer</code> mode do?</div>
+        <p>
+          Switching to <code>int-developer</code> mode disables the firewall and enables
+          several additional services, including <strong>SSH on port 22</strong>.
+          It also disables the normal boot animation — instead you'll see a large checkmark,
+          which confirms the mode was applied successfully.
+        </p>
+      </div>
+
+      <p>
+        Continue to the next step to flash the modified partition back to Jibo.
+      </p>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'manual-2';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

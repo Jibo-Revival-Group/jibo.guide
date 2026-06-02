@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSH &amp; Next Steps · jibo.guide</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+    <main>
+      <h1>SSH &amp; Next Steps</h1>
+
+      <p>
+        Congratulations — Jibo is in developer mode and you have SSH access. This page
+        covers what to do next: installing the JiboOS update, useful ports and tools,
+        and what to explore.
+      </p>
+
+      <div class="callout note">
+        <div class="callout-title">✅ Quick SSH reference</div>
+        <pre><code>ssh root@&lt;jibo-ip&gt;
+# password: jibo</code></pre>
+      </div>
+
+      <hr>
+
+      <h2>Install the JiboOS Community Update</h2>
+
+      <p>
+        The Jibo Revival Group maintains a community OS update that restores significant
+        functionality. With SSH access, you can install it using the
+        <strong>jibo_updater</strong> tool (included with JiboAutoMod):
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_updater.py --ip &lt;jibo-ip&gt;</code></pre>
+
+      <p>The updater will:</p>
+      <ol>
+        <li>Query the community releases API for the latest JiboOS version</li>
+        <li>Download and extract the release archive</li>
+        <li>Upload the rootfs overlay to Jibo via SFTP</li>
+        <li>Optionally return Jibo to <code>normal</code> mode after the update</li>
+      </ol>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Common updater flags</div>
+        <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--stable</code></td><td>Install only stable releases (skip pre-releases)</td></tr>
+            <tr><td><code>--tag v3.3.0</code></td><td>Install a specific release version</td></tr>
+            <tr><td><code>--dry-run</code></td><td>Download and connect but don't upload anything</td></tr>
+            <tr><td><code>--force</code></td><td>Re-install even if already on the latest version</td></tr>
+            <tr><td><code>--return-normal</code></td><td>Set mode back to <code>normal</code> after update</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <hr>
+
+      <h2>Useful Ports</h2>
+
+      <p>
+        Jibo exposes several HTTP services that you can interact with over your local
+        network. Some may require the firewall to be open (developer mode keeps these
+        accessible):
+      </p>
+
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Port</th>
+            <th>Service</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>22</code></td>
+            <td>SSH</td>
+            <td>Root access. Password: <code>jibo</code></td>
+          </tr>
+          <tr>
+            <td><code>8779</code></td>
+            <td>Skills Manager</td>
+            <td>Start/stop skills (including a soft reboot via <code>@be/Be</code>)</td>
+          </tr>
+          <tr>
+            <td><code>8088</code></td>
+            <td>ASR Service (STT)</td>
+            <td>Local speech-to-text. HTTP + WebSocket. Requires <code>jibo-asr-service</code> running.</td>
+          </tr>
+          <tr>
+            <td><code>8089</code></td>
+            <td>TTS Service</td>
+            <td>Local text-to-speech. POST to <code>/tts_speak</code>.</td>
+          </tr>
+          <tr>
+            <td><code>15150</code></td>
+            <td>Log Service</td>
+            <td>Available in JiboOS v3+. Check Settings → Info for your version.</td>
+          </tr>
+          <tr>
+            <td><code>10004</code></td>
+            <td>Error Service</td>
+            <td>Simulate errors in real-time. Useful for debugging skill behavior.</td>
+          </tr>
+          <tr>
+            <td><code>8686</code></td>
+            <td>Dev Shell</td>
+            <td>Jibo dev shell service (developer mode only)</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <hr>
+
+      <h2>Local Voice Round-Trip</h2>
+
+      <p>
+        One of the most exciting discoveries: Jibo's entire voice pipeline still works
+        locally, without any cloud connection.
+      </p>
+
+      <ul>
+        <li><strong>Wake word</strong> ("Hey Jibo") detection works locally</li>
+        <li><strong>Speech-to-text</strong> (ASR) runs on port 8088</li>
+        <li><strong>Text-to-speech</strong> (TTS) runs on port 8089</li>
+      </ul>
+
+      <h3>Start the ASR Service</h3>
+      <p>From SSH:</p>
+      <pre class="shell-block"><code>root@jibo:~# /usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json</code></pre>
+
+      <h3>Start a Listening Session</h3>
+      <p>From your computer:</p>
+      <pre class="shell-block"><code><span class="comment"># Connect to the WebSocket to receive transcript events:</span>
+<span class="comment"># ws://&lt;jibo-ip&gt;:8088/simple_port</span>
+
+<span class="comment"># Then start an STT task:</span>
+<span class="prompt">$ </span>curl -X POST http://&lt;jibo-ip&gt;:8088/asr_simple_interface \
+  -H "Content-Type: application/json" \
+  -d '{
+    "command": "start",
+    "task_id": "DEBUG:task1",
+    "audio_source_id": "alsa1",
+    "hotphrase": "none",
+    "speech_to_text": true
+  }'</code></pre>
+
+      <h3>Make Jibo Speak</h3>
+      <pre class="shell-block"><code><span class="prompt">$ </span>curl -X POST http://&lt;jibo-ip&gt;:8089/tts_speak \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello! I am back."}'</code></pre>
+
+      <div class="callout note">
+        <div class="callout-title">✅ Full conversation loop</div>
+        <p>
+          Combining the ASR WebSocket output → your logic → TTS POST gives you a complete
+          voice interaction loop without any cloud dependency. Jibo can hear, understand,
+          and respond — all locally.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Useful File Locations</h2>
+
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Path</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/var/jibo/mode.json</code></td>
+            <td>Current boot mode (<code>normal</code> / <code>int-developer</code> / etc.)</td>
+          </tr>
+          <tr>
+            <td><code>/opt/jibo/Jibo/Skills/@be/be/resources/JiboSplash.png</code></td>
+            <td>Splash screen shown at Be skill startup — replace to customize</td>
+          </tr>
+          <tr>
+            <td><code>/opt/jibo/Jibo/Skills/@be/be/node_modules/jibo-anim-db-animations/audio/</code></td>
+            <td>Audio assets directory</td>
+          </tr>
+          <tr>
+            <td><code>/usr/local/bin/</code></td>
+            <td>Jibo binaries and asset directory</td>
+          </tr>
+          <tr>
+            <td><code>/etc/init.d/S21firewall</code></td>
+            <td>Firewall init script (see Networking notes)</td>
+          </tr>
+          <tr>
+            <td><code>/var/jibo/identity.json</code></td>
+            <td>Robot identity and name</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <hr>
+
+      <h2>Changing Modes</h2>
+
+      <p>
+        Jibo's behavior changes significantly depending on <code>mode.json</code>.
+        You can switch modes at any time from SSH (requires remounting <code>/</code> as writable):
+      </p>
+
+      <pre class="shell-block"><code>root@jibo:~# mount -o remount,rw /
+root@jibo:~# /usr/bin/jibo-getmode         <span class="comment"># check current mode</span>
+root@jibo:~# echo '{"mode": "normal"}' > /var/jibo/mode.json
+root@jibo:~# reboot</code></pre>
+
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Mode</th><th>Behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>normal</code></td><td>Standard user mode. Firewall active. SSH blocked. Original boot animation.</td></tr>
+          <tr><td><code>int-developer</code></td><td>Full developer mode. Firewall disabled. SSH on port 22. Checkmark boot.</td></tr>
+          <tr><td><code>developer</code></td><td>Developer mode with a more limited firewall (ports 8686, 8779, 8989, 9191 open).</td></tr>
+          <tr><td><code>service</code></td><td>Service/certification mode. Ports 9292, 9797 open.</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Adding SSH to normal mode</div>
+        <p>
+          If you want SSH access without the checkmark boot screen, you can patch the firewall
+          in <code>normal</code> mode. Edit <code>/etc/init.d/S21firewall</code> and add this
+          line to the <code>normal_rules()</code> function (before the REJECT rule):
+        </p>
+        <pre><code>$iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT</code></pre>
+        <p>Remember to remount <code>/</code> as writable first.</p>
+      </div>
+
+      <hr>
+
+      <h2>What's Next</h2>
+
+      <p>The community is actively working on:</p>
+      <ul>
+        <li>A complete AI "brain" integration (local LLM or cloud AI via the voice round-trip loop)</li>
+        <li>Home Assistant integration to use Jibo as a smart home controller</li>
+        <li>A new Jibo SDK for building custom skills</li>
+        <li>A custom phone app to replace the original Jibo app</li>
+        <li>Jibo as a webcam/camera for your PC</li>
+      </ul>
+
+      <p>
+        Join the <a href="https://discord.gg/jibo">Discord</a> to stay up to date and
+        contribute. The community is friendly and always looking for developers, testers,
+        and people who can help document discoveries.
+      </p>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'post-mod';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
