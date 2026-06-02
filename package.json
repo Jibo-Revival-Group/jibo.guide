@@ -9,5 +9,8 @@
   },
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "canvas": "^3.2.3"
   }
 }
