@@ -76,18 +76,18 @@
       <ol class="steps">
         <li>
           SSH into Jibo:
-          <pre class="shell-block"><code>root@jibo:~# ssh root@&lt;jibo-ip&gt;</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>ssh root@&lt;jibo-ip&gt;</code></pre>
         </li>
         <li>
           Remount <code>/usr/local</code> as writable — it's read-only by default:
-          <pre class="shell-block"><code>root@jibo:~# jibo-mount --rw</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>jibo-mount --rw</code></pre>
         </li>
         <li>
           <p>
             Set the three override properties using Python (<code>nano</code> doesn't
             exist on Jibo). Replace the IP and port with your hub's values:
           </p>
-          <pre class="shell-block"><code>root@jibo:~# python -c "
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>python -c "
 import json
 f = '/usr/local/etc/jibo-jetstream-service.json'
 d = json.load(open(f))
@@ -108,7 +108,7 @@ python -c "import json; f='/usr/local/etc/jibo-jetstream-service.json'; d=json.l
         </li>
         <li>
           Restart Jetstream — the system manager respawns it within a few seconds:
-          <pre class="shell-block"><code>root@jibo:~# kill -9 $(pgrep -f jibo-jetstream-service)</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>kill -9 $(pgrep -f jibo-jetstream-service)</code></pre>
         </li>
       </ol>
 
@@ -127,12 +127,12 @@ python -c "import json; f='/usr/local/etc/jibo-jetstream-service.json'; d=json.l
 
       <p>Check that a new Jetstream process is running:</p>
 
-      <pre class="shell-block"><code>root@jibo:~# ps | grep jibo-jetstream
+      <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>ps | grep jibo-jetstream
 <span class="comment"># should show a fresh PID</span></code></pre>
 
       <p>Check the service logs to see if it connected:</p>
 
-      <pre class="shell-block"><code>root@jibo:~# cat /var/log/messages | grep jetstream | tail -20</code></pre>
+      <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>cat /var/log/messages | grep jetstream | tail -20</code></pre>
 
       <hr>
 

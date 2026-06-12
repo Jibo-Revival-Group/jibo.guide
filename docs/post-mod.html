@@ -131,7 +131,7 @@
 
       <h3>Start the ASR Service</h3>
       <p>From SSH:</p>
-      <pre class="shell-block"><code>root@jibo:~# /usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json</code></pre>
+      <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>/usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json</code></pre>
 
       <h3>Start a Listening Session</h3>
       <p>From your computer:</p>
@@ -210,10 +210,10 @@
         You can switch modes at any time from SSH (requires remounting <code>/</code> as writable):
       </p>
 
-      <pre class="shell-block"><code>root@jibo:~# mount -o remount,rw /
-root@jibo:~# /usr/bin/jibo-getmode         <span class="comment"># check current mode</span>
-root@jibo:~# echo '{"mode": "normal"}' > /var/jibo/mode.json
-root@jibo:~# reboot</code></pre>
+      <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>mount -o remount,rw /
+<span class="prompt">root@jibo:~# </span>/usr/bin/jibo-getmode         <span class="comment"># check current mode</span>
+<span class="prompt">root@jibo:~# </span>echo '{"mode": "normal"}' > /var/jibo/mode.json
+<span class="prompt">root@jibo:~# </span>reboot</code></pre>
 
       <div class="table-wrap">
       <table>

@@ -78,13 +78,13 @@
       <ol class="steps">
         <li>
           Remount the root filesystem as writable:
-          <pre class="shell-block"><code>root@jibo:~# mount -o remount,rw /</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>mount -o remount,rw /</code></pre>
         </li>
         <li>
           Open the system manager config and find the <code>"name": "asr"</code> entry.
           Change <code>"enabled": false</code> to <code>"enabled": true</code> inside the
           <code>"default"</code> mode block:
-          <pre class="shell-block"><code>root@jibo:~# vi /usr/local/etc/jibo-system-manager.json</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>vi /usr/local/etc/jibo-system-manager.json</code></pre>
           The relevant section looks like this — change the highlighted value:
           <pre><code>{
     "name": "asr",
@@ -103,11 +103,11 @@
         </li>
         <li>
           Reboot Jibo:
-          <pre class="shell-block"><code>root@jibo:~# reboot</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>reboot</code></pre>
         </li>
         <li>
           After boot, confirm the service is running:
-          <pre class="shell-block"><code>root@jibo:~# ss -tlnp | grep 8088</code></pre>
+          <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>ss -tlnp | grep 8088</code></pre>
         </li>
       </ol>
 
@@ -144,7 +144,7 @@
         permanent, SSH in and run:
       </p>
 
-      <pre class="shell-block"><code>root@jibo:~# /usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json &</code></pre>
+      <pre class="shell-block"><code><span class="prompt">root@jibo:~# </span>/usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json &</code></pre>
 
       <hr>
 
