@@ -46,55 +46,13 @@
 
       <p>
         Congratulations — Jibo is in developer mode and you have SSH access. This page
-        covers what to do next: installing the JiboOS update, useful ports and tools,
-        and what to explore.
+        covers useful ports and tools, and what to explore next.
       </p>
 
       <div class="callout note">
         <div class="callout-title">✅ Quick SSH reference</div>
         <pre><code>ssh root@&lt;jibo-ip&gt;
 # password: jibo</code></pre>
-      </div>
-
-      <hr>
-
-      <h2>Install the JiboOS Community Update</h2>
-
-      <p>
-        The Jibo Revival Group maintains a community OS update that restores significant
-        functionality. With SSH access, you can install it using the
-        <strong>jibo_updater</strong> tool (included with JiboAutoMod):
-      </p>
-
-      <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_updater.py --ip &lt;jibo-ip&gt;</code></pre>
-
-      <p>The updater will:</p>
-      <ol>
-        <li>Query the community releases API for the latest JiboOS version</li>
-        <li>Download and extract the release archive</li>
-        <li>Upload the rootfs overlay to Jibo via SFTP</li>
-        <li>Optionally return Jibo to <code>normal</code> mode after the update</li>
-      </ol>
-
-      <div class="callout info">
-        <div class="callout-title">ℹ️ Common updater flags</div>
-        <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Flag</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><code>--stable</code></td><td>Install only stable releases (skip pre-releases)</td></tr>
-            <tr><td><code>--tag v3.3.0</code></td><td>Install a specific release version</td></tr>
-            <tr><td><code>--dry-run</code></td><td>Download and connect but don't upload anything</td></tr>
-            <tr><td><code>--force</code></td><td>Re-install even if already on the latest version</td></tr>
-            <tr><td><code>--return-normal</code></td><td>Set mode back to <code>normal</code> after update</td></tr>
-          </tbody>
-        </table>
-        </div>
       </div>
 
       <hr>
