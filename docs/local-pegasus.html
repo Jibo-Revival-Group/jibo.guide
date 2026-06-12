@@ -71,27 +71,6 @@
 
       <pre><code>/usr/local/etc/jibo-jetstream-service.json</code></pre>
 
-      <h2>What to Change</h2>
-
-      <p>
-        Inside the top-level <code>HubClient</code> object, add (or rename an existing
-        <code>xxx_override</code> key to) an <code>override</code> block pointing at your hub:
-      </p>
-
-      <pre><code>"override": {
-    "hub_hostname": "192.168.1.133",
-    "hub_port": 9000,
-    "hub_secure": false
-}</code></pre>
-
-      <p>
-        Set <code>hub_hostname</code> to your hub's LAN IP, <code>hub_port</code> to
-        whichever port your Pegasus replacement listens on, and <code>hub_secure</code>
-        to <code>false</code> unless your hub is behind TLS.
-      </p>
-
-      <hr>
-
       <h2>Steps on the Robot</h2>
 
       <ol class="steps">
@@ -104,10 +83,28 @@
           <pre class="shell-block"><code>root@jibo:~# jibo-mount --rw</code></pre>
         </li>
         <li>
-          Edit the Jetstream config:
-          <pre class="shell-block"><code>root@jibo:~# nano /usr/local/etc/jibo-jetstream-service.json</code></pre>
-          Find the <code>HubClient</code> object and add the <code>override</code> block
-          shown above. Save and exit (<code>Ctrl+X</code>, <code>Y</code>, <code>Enter</code>).
+          <p>
+            Set the three override properties using Python (<code>nano</code> doesn't
+            exist on Jibo). Replace the IP and port with your hub's values:
+          </p>
+          <pre class="shell-block"><code>root@jibo:~# python -c "
+import json
+f = '/usr/local/etc/jibo-jetstream-service.json'
+d = json.load(open(f))
+d['HubClient']['override'] = {
+    'hub_hostname': '192.168.1.133',
+    'hub_port': 9000,
+    'hub_secure': False
+}
+open(f, 'w').write(json.dumps(d, indent=4))
+"</code></pre>
+          <div class="callout info" style="margin-top:0.8em">
+            <div class="callout-title">ℹ️ Individual property one-liners</div>
+            <p>If you only want to change one value at a time:</p>
+            <pre><code>python -c "import json; f='/usr/local/etc/jibo-jetstream-service.json'; d=json.load(open(f)); d['HubClient'].setdefault('override',{})['hub_hostname']='192.168.1.133'; open(f,'w').write(json.dumps(d,indent=4))"
+python -c "import json; f='/usr/local/etc/jibo-jetstream-service.json'; d=json.load(open(f)); d['HubClient'].setdefault('override',{})['hub_port']=9000; open(f,'w').write(json.dumps(d,indent=4))"
+python -c "import json; f='/usr/local/etc/jibo-jetstream-service.json'; d=json.load(open(f)); d['HubClient'].setdefault('override',{})['hub_secure']=False; open(f,'w').write(json.dumps(d,indent=4))"</code></pre>
+          </div>
         </li>
         <li>
           Restart Jetstream — the system manager respawns it within a few seconds:
