@@ -60,88 +60,91 @@
         </p>
       </div>
 
+      <hr>
+
+      <h2>Enable via the System Manager (recommended)</h2>
+
+      <p>
+        The cleanest and most permanent method. Jibo's system manager
+        (<code>jibo-system-manager</code>) is responsible for starting and supervising all
+        platform services — body, audio, TTS, LPS, and so on. The ASR service is
+        <strong>already defined</strong> in its config at
+        <code>/usr/local/etc/jibo-system-manager.json</code>, but ships with
+        <code>"enabled": false</code>. Flipping that flag to <code>true</code> makes the
+        system manager start and restart ASR automatically on every boot, exactly like every
+        other platform service.
+      </p>
+
+      <ol class="steps">
+        <li>
+          Remount the root filesystem as writable:
+          <pre class="shell-block"><code>root@jibo:~# mount -o remount,rw /</code></pre>
+        </li>
+        <li>
+          Open the system manager config and find the <code>"name": "asr"</code> entry.
+          Change <code>"enabled": false</code> to <code>"enabled": true</code> inside the
+          <code>"default"</code> mode block:
+          <pre class="shell-block"><code>root@jibo:~# vi /usr/local/etc/jibo-system-manager.json</code></pre>
+          The relevant section looks like this — change the highlighted value:
+          <pre><code>{
+    "name": "asr",
+    "order": 2,
+    "executable": "/usr/local/bin/jibo-asr-service",
+    "modes": {
+        "default": {
+            "arguments": ["-c", "/usr/local/etc/jibo-asr-service.json"],
+            "environment": {},
+            "directory": "",
+            "enabled": true    <span class="comment">← change false to true</span>
+        },
+        ...
+    }
+}</code></pre>
+        </li>
+        <li>
+          Reboot Jibo:
+          <pre class="shell-block"><code>root@jibo:~# reboot</code></pre>
+        </li>
+        <li>
+          After boot, confirm the service is running:
+          <pre class="shell-block"><code>root@jibo:~# ss -tlnp | grep 8088</code></pre>
+        </li>
+      </ol>
+
       <div class="callout note">
-        <div class="callout-title">✅ JiboOS starts it for you automatically</div>
+        <div class="callout-title">✅ Why this is the right approach</div>
         <p>
-          If you have the <strong>JiboOS</strong> community update installed, you don't need
-          to do anything. The Be skill's AI bridge (<code>ai-bridge.js</code>) checks port 8088
-          on demand and spawns <code>jibo-asr-service</code> automatically if it isn't running yet,
-          using the config at <code>/opt/jibo/Jibo/Skills/@be/be/be/jibo-asr-service.local.json</code>.
-          This is controlled by <code>"asrAutoStart": true</code> in <code>ai-bridge-config.json</code>.
+          The system manager monitors all managed services and restarts them if they crash —
+          the same crash recovery that covers <code>body</code>, <code>audio</code>,
+          <code>tts</code>, and <code>lps</code>. The ASR service even has its own crash
+          code (<code>SERVICE_CRASH_ASR</code>) already wired up in the config, waiting
+          to be used.
         </p>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Already on JiboOS?</div>
         <p>
-          The manual steps below are only needed if you want the service running
-          <em>before</em> the Be skill starts, or if you are not using JiboOS.
+          If you have the JiboOS community update installed, its Be skill includes an
+          <code>ai-bridge.js</code> that detects when port 8088 is closed and spawns the
+          ASR service on demand. If voice features are already working for you, you may
+          already be covered and don't need to make this change. The system manager method
+          above is still preferable because it starts the service earlier (before Be loads)
+          and provides crash recovery — but it is not strictly required if ai-bridge is
+          handling it.
         </p>
       </div>
 
       <hr>
 
-      <h2>Starting the service manually</h2>
-
-      <p>SSH into your Jibo and run:</p>
-
-      <pre class="shell-block"><code>root@jibo:~# /usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json</code></pre>
+      <h2>Starting the service manually (one-off)</h2>
 
       <p>
-        The service will start and listen on <code>port 8088</code>. You can verify it's
-        up by checking for the port:
+        If you just want to start the service for a single session without making it
+        permanent, SSH in and run:
       </p>
 
-      <pre class="shell-block"><code>root@jibo:~# netstat -tlnp 2>/dev/null | grep 8088
-<span class="comment"># or</span>
-root@jibo:~# ss -tlnp | grep 8088</code></pre>
-
-      <h2>Running it in the background</h2>
-
-      <p>
-        To keep the service running after you close your SSH session, use
-        <code>nohup</code>:
-      </p>
-
-      <pre class="shell-block"><code>root@jibo:~# nohup /usr/local/bin/jibo-asr-service \
-  -c /usr/local/etc/jibo-asr-service.json \
-  > /tmp/asr.log 2>&1 &
-root@jibo:~# echo "ASR PID: $!"</code></pre>
-
-      <h2>Starting it automatically on boot</h2>
-
-      <p>
-        Add a startup entry under <code>/etc/init.d/</code> so the ASR service starts
-        every time Jibo boots. First remount the filesystem as writable:
-      </p>
-
-      <pre class="shell-block"><code>root@jibo:~# mount -o remount,rw /</code></pre>
-
-      <p>Then create the init script:</p>
-
-      <pre class="shell-block"><code>root@jibo:~# cat > /etc/init.d/S80jibo-asr &lt;&lt;'EOF'
-#!/bin/sh
-case "$1" in
-  start)
-    echo "Starting jibo-asr-service"
-    nohup /usr/local/bin/jibo-asr-service \
-      -c /usr/local/etc/jibo-asr-service.json \
-      > /tmp/asr.log 2>&1 &
-    ;;
-  stop)
-    killall jibo-asr-service 2>/dev/null
-    ;;
-  *)
-    echo "Usage: $0 {start|stop}"
-    exit 1
-esac
-EOF
-root@jibo:~# chmod +x /etc/init.d/S80jibo-asr</code></pre>
-
-      <div class="callout note">
-        <div class="callout-title">✅ JiboOS may handle this for you</div>
-        <p>
-          If you have installed the community <strong>JiboOS</strong> update, the ASR service
-          may already be configured to start on boot. Check whether port 8088 is already open
-          before adding the init script above.
-        </p>
-      </div>
+      <pre class="shell-block"><code>root@jibo:~# /usr/local/bin/jibo-asr-service -c /usr/local/etc/jibo-asr-service.json &</code></pre>
 
       <hr>
 
