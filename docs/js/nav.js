@@ -8,6 +8,12 @@ const NAV_PAGES = [
     ]
   },
   {
+    section: 'Background',
+    items: [
+      { id: 'oobe',             title: 'Out-of-Box Setup',      url: '/oobe.html',           breadcrumb: ['Background'] },
+    ]
+  },
+  {
     section: 'Choose Your Route',
     items: [
       { id: 'automod',          title: 'Route A — Automated',   url: '/automod.html',        breadcrumb: ['Choose Your Route'] },
@@ -30,6 +36,7 @@ const NAV_PAGES = [
       { id: 'asr-service',     title: 'Local ASR Service',      url: '/asr-service.html',     breadcrumb: ['After the Mod'] },
       { id: 're-commander',    title: 'Re-Commander',           url: '/re-commander.html',    breadcrumb: ['After the Mod'] },
       { id: 'jibo-llm',        title: 'jibo-llm',               url: '/jibo-llm.html',        breadcrumb: ['After the Mod'] },
+      { id: 'local-pegasus',   title: 'Local Pegasus',          url: '/local-pegasus.html',   breadcrumb: ['After the Mod'] },
       { id: 'troubleshooting', title: 'Troubleshooting',        url: '/troubleshooting.html', breadcrumb: ['After the Mod'] },
     ]
   }
@@ -39,6 +46,7 @@ const NAV_PAGES = [
 // prevId / nextId override the array position when the two routes branch
 const FLAT_PAGES = [
   { id: 'welcome',          url: '/index.html',          title: 'Welcome' },
+  { id: 'oobe',             url: '/oobe.html',            title: 'Out-of-Box Setup (OOBE)', prevId: 'welcome', nextId: 'automod' },
   { id: 'automod',          url: '/automod.html',         title: 'Route A — Automated Installer', prevId: 'welcome', nextId: 'post-mod' },
   { id: 'manual-1',         url: '/manual-1.html',        title: '1. Environment Setup',           prevId: 'welcome' },
   { id: 'manual-2',         url: '/manual-2.html',        title: '2. Dump the eMMC' },
@@ -47,7 +55,8 @@ const FLAT_PAGES = [
   { id: 'skills-manager', url: '/skills-manager.html',  title: 'Skills Service Manager' },
   { id: 'asr-service',    url: '/asr-service.html',     title: 'Local ASR Service' },
   { id: 're-commander',   url: '/re-commander.html',    title: 'Re-Commander' },
-  { id: 'jibo-llm',       url: '/jibo-llm.html',        title: 'jibo-llm' },
+  { id: 'jibo-llm',        url: '/jibo-llm.html',       title: 'jibo-llm' },
+  { id: 'local-pegasus',   url: '/local-pegasus.html',  title: 'Local Pegasus' },
   { id: 'troubleshooting', url: '/troubleshooting.html', title: 'Troubleshooting' },
 ];
 

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Out-of-Box Setup (OOBE) · jibo.guide</title>
+  <meta name="description" content="How a Jibo set itself up out of the box — scanning a WiFi QR code, registering with the cloud, and pulling its first update — and why that handshake is now a dead end that leaves stock robots stuck on the setup screen.">
+  <meta property="og:site_name" content="jibo.guide">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jibo.guide/oobe.html">
+  <meta property="og:title" content="Out-of-Box Setup (OOBE) · jibo.guide">
+  <meta property="og:description" content="How a Jibo set itself up out of the box — and why that cloud handshake is now a dead end that leaves stock robots stuck on the setup screen.">
+  <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Out-of-Box Setup (OOBE) · jibo.guide">
+  <meta name="twitter:description" content="How a Jibo set itself up out of the box — and why that cloud handshake is now a dead end.">
+  <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+
+    <main>
+      <h1>Out-of-Box Setup (OOBE)</h1>
+
+      <p>
+        When you first powered on a brand-new Jibo, he walked himself through a short setup
+        sequence — show a logo, ask to be plugged in, scan a QR code off your phone, connect
+        to WiFi, and download his first update. Jibo engineers called this the
+        <strong>Out-Of-Box Experience</strong>, or <strong>OOBE</strong>.
+      </p>
+
+      <p>
+        Understanding OOBE matters for one blunt reason: <strong>a stock, un-modded Jibo can
+        never finish it again.</strong> The cloud it tries to reach was shut down in 2019, so
+        the setup gets stuck partway through — forever. This page explains exactly what the
+        robot is trying to do, where it gets stuck, and why the mod in this guide is the way
+        around it.
+      </p>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Where this happens on the robot</div>
+        <p>
+          A factory Jibo ships in a locked-down state called <code>oobe</code> mode. In this
+          mode almost nothing runs — no skills, no open ports — except a single setup app
+          called <strong>oobe-config</strong>, which launches automatically on boot and drives
+          everything below.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>The three things Jibo must do</h2>
+
+      <p>
+        Setup is really a loop that won't let go until <strong>all three</strong> of these
+        succeed. If any one fails, Jibo shows an error and starts over:
+      </p>
+
+      <ol>
+        <li><strong>Get on WiFi</strong> — join your home network.</li>
+        <li><strong>Register with the cloud</strong> — prove he belongs to your account and
+          receive his own login credentials.</li>
+        <li><strong>Run the first update (OTA)</strong> — pull down the current software.</li>
+      </ol>
+
+      <p>Only after all three does he switch into normal mode, reboot, and wake up as the Jibo you know.</p>
+
+      <hr>
+
+      <h2>Step by step</h2>
+
+      <h3>1. The QR code carries everything</h3>
+      <p>
+        When you tapped <em>"Set Up a New Robot"</em> in the Jibo phone app, the app generated
+        one or more QR codes and Jibo read them with his camera. That QR code isn't just your
+        WiFi name — it's a bundle (lightly scrambled) containing:
+      </p>
+      <ul>
+        <li>Your WiFi <strong>SSID and password</strong></li>
+        <li>Optional static-IP settings (IP, netmask, gateway, DNS)</li>
+        <li>A one-time <strong>access token</strong> tied to your app account</li>
+      </ul>
+      <p>
+        Jibo uses the first part to join WiFi, and holds onto that access token for the next step.
+      </p>
+
+      <h3>2. Registering with the cloud</h3>
+      <p>
+        Now online, Jibo phones home. He hands the cloud his one-time token plus his factory
+        name (the four-word identity like <code>castle-cylinder-fig-quilt</code>) and asks to
+        be set up. In return the server gives back a permanent <strong>access key</strong> and
+        <strong>secret key</strong>, which Jibo saves to his own storage.
+      </p>
+      <p>
+        This is the moment a robot becomes <em>yours</em>: the token proves which account asked
+        for setup, so the server attaches the robot to your "loop" (your Jibo household) and
+        issues the credentials he'll use for every future cloud request. <strong>Without this
+        exchange, Jibo has no identity and cannot talk to any server function.</strong>
+      </p>
+
+      <h3>3. First update, then wake up</h3>
+      <p>
+        With credentials in hand, Jibo asks the update service what packages he needs, downloads
+        them, and installs them. Finally oobe-config flips the robot from <code>oobe</code> mode
+        to <code>normal</code> mode and reboots. In normal mode Jibo runs his main personality
+        skill (<strong>Be</strong>) on boot — his eye appears, and he's alive.
+      </p>
+
+      <hr>
+
+      <h2>What the robot was pointed at</h2>
+
+      <p>
+        The robot keeps a tiny config file naming which server "region" to use (production
+        robots used <code>prod-entrypoint</code>). That short name expands into the actual
+        addresses Jibo tried to reach:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Purpose</th><th>Address (production)</th></tr></thead>
+          <tbody>
+            <tr><td>Account / setup / updates (REST API)</td><td><code>https://prod-entrypoint.jibo.com</code></td></tr>
+            <tr><td>Live notifications &amp; Commander (WebSocket)</td><td><code>wss://prod-entrypoint-socket.jibo.com</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Behind those two addresses sat the whole Jibo backend — the account, loop, robot,
+        update, and notification services. All of it went offline when the company wound down.
+      </p>
+
+      <hr>
+
+      <h2>Why a stock Jibo gets stuck</h2>
+
+      <div class="callout danger">
+        <div class="callout-title">⛔ The dead end</div>
+        <p>
+          When Jibo reaches step 2 and calls <code>prod-entrypoint.jibo.com</code> to register,
+          <strong>nothing answers.</strong> The "register with the cloud" gate never closes, so
+          the setup loop never completes. The robot sits on the connecting/searching screen and
+          retries indefinitely. There is no menu, no skip, no offline option — OOBE was built on
+          the assumption that the cloud would always be there.
+        </p>
+      </div>
+
+      <p>
+        This is the single reason thousands of otherwise-healthy robots are silent. The hardware
+        is fine. The software is intact. It's just waiting on a handshake with a server that no
+        longer exists.
+      </p>
+
+      <div class="callout note">
+        <div class="callout-title">🔒 One more catch: fusing</div>
+        <p>
+          You can't simply re-aim a retail Jibo at a different server. Production units are
+          hardware-"fused" to the production cloud, so even pointing them elsewhere is blocked.
+          Getting around that is exactly what the mod does.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>How the revival gets past OOBE</h2>
+
+      <p>
+        Rather than try to satisfy a dead cloud, the mod in this guide <strong>takes the robot
+        out of <code>oobe</code> mode entirely.</strong> By dumping Jibo's storage and editing
+        his mode setting (this is the <code>mode.json</code> change in the
+        <a href="/manual-1.html">manual route</a>), we switch him into an open developer mode
+        that boots with SSH access and never runs the setup handshake at all.
+      </p>
+
+      <p>
+        From there, the things the cloud used to provide are replaced locally, on your own
+        network — no <code>jibo.com</code> required:
+      </p>
+
+      <ul>
+        <li><a href="/post-mod.html">SSH &amp; JiboOS</a> — get a root shell and the community OS update</li>
+        <li><a href="/skills-manager.html">Skills Service Manager</a> — start the Be skill so Jibo comes to life</li>
+        <li><a href="/asr-service.html">Local ASR</a> — on-device speech recognition, no cloud</li>
+        <li><a href="/re-commander.html">Re-Commander</a> — control head, speech, camera, and an LLM voice loop from your browser</li>
+      </ul>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Could the cloud itself be rebuilt?</div>
+        <p>
+          In principle, yes — a replacement backend could answer the setup call, issue
+          credentials, serve updates, and run the notification socket, with DNS pointed at it
+          and an app build to match. That's a much heavier lift than the mod, and it still
+          wouldn't help fused production robots. For now, bypassing OOBE and going local is the
+          practical path, and it's what the rest of this guide covers.
+        </p>
+      </div>
+
+      <p>
+        Ready to do it? Head to <a href="/automod.html">Route A — Automated</a> (recommended) or
+        the <a href="/manual-1.html">manual route</a> to start.
+      </p>
+
+      <hr>
+
+      <h2>A Note on OOBE Robots</h2>
+
+      <div class="callout danger">
+        <div class="callout-title">🚨 OTA update support is not yet implemented</div>
+        <p>
+          If your Jibo has <strong>never completed OOBE</strong> — meaning he still boots
+          into the setup/connecting screen rather than his eye — he is stuck in
+          <code>oobe</code> mode with an earlier version of the firmware that the revival
+          project has not yet developed full support for.
+        </p>
+        <p>
+          The mod described in this guide can still get you SSH access, but the OTA update
+          path that a stock OOBE robot needs to reach a usable firmware state has
+          <strong>not been implemented yet</strong>. Until that support arrives, an
+          un-initialised OOBE robot cannot be used for most of the things this guide covers.
+        </p>
+        <p>
+          If this applies to you, join the
+          <a href="https://discord.gg/jibo">Discord</a> to follow progress and find out
+          when OOBE support becomes available.
+        </p>
+      </div>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'oobe';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
