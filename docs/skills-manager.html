@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills Service Manager · jibo.guide</title>
+  <meta name="description" content="How to find, launch, stop, and debug Jibo skills using the Skills Service Manager — the browser UI and HTTP API on port 8779.">
+  <meta property="og:site_name" content="jibo.guide">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jibo.guide/skills-manager.html">
+  <meta property="og:title" content="Skills Service Manager · jibo.guide">
+  <meta property="og:description" content="How to find, launch, stop, and debug Jibo skills using the Skills Service Manager — the browser UI and HTTP API on port 8779.">
+  <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Skills Service Manager · jibo.guide">
+  <meta name="twitter:description" content="How to find, launch, stop, and debug Jibo skills using the Skills Service Manager — the browser UI and HTTP API on port 8779.">
+  <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+
+    <main>
+      <h1>Skills Service Manager</h1>
+
+      <p>
+        The <strong>Skills Service Manager (SSM)</strong> is the Node.js process that runs
+        inside Jibo's Electron shell and handles everything to do with skills: launching them,
+        terminating them, switching between them, and routing voice commands to the right one.
+        It exposes a browser UI and an HTTP API on <strong>port 8779</strong> that you can
+        use to manage skills from any device on the same network.
+      </p>
+
+      <hr>
+
+      <h2>The Browser UI</h2>
+
+      <p>Open a browser and navigate to:</p>
+
+      <pre><code>http://&lt;jibo-ip&gt;:8779</code></pre>
+
+      <p>
+        You'll see a list of every skill installed on Jibo with buttons to
+        <strong>Launch</strong>, <strong>Stop</strong>, and open the skill's
+        <strong>Chrome DevTools debugger</strong>.
+      </p>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Port 8779 availability</div>
+        <p>
+          Port 8779 is open in all modes that include the SSM — including
+          <code>int-developer</code>, <code>developer</code>, and <code>normal</code>
+          (via the JiboOS firewall patch). If the page doesn't load, check that Jibo has
+          finished booting and the SSM is running.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>What Is a Skill?</h2>
+
+      <p>
+        Everything Jibo does is a skill — his eye, his menu, his clock, his idle animations.
+        Skills are Node.js packages installed on the robot under:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>/opt/jibo/Jibo/Skills/@be/</code></td>
+              <td>System skills bundled with Be: <code>@be/be</code>, <code>@be/clock</code>, <code>@be/idle</code>, etc.</td>
+            </tr>
+            <tr>
+              <td><code>/opt/jibo/Skills/</code></td>
+              <td>Third-party and developer-installed skills</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        The most important skill is <strong><code>@be/be</code></strong> — the Be skill.
+        It's Jibo's main process: his eye, his animated face, his main menu, and the
+        container that hosts all other skills. If something goes wrong with Jibo's behaviour,
+        restarting Be is the first thing to try.
+      </p>
+
+      <hr>
+
+      <h2>Restarting the Be Skill (Soft Reboot)</h2>
+
+      <p>
+        Restarting <code>@be/be</code> via the SSM brings Jibo back to his eye screen and
+        re-initialises all sub-skills without rebooting the whole robot. It's much faster
+        than a full reboot and is the standard way to apply skill changes.
+      </p>
+
+      <p>
+        In the browser UI at <code>:8779</code>, find <strong>@be/be</strong>, click
+        <strong>Stop</strong>, then <strong>Launch</strong>.
+      </p>
+
+      <p>Or via <code>curl</code> from your computer:</p>
+
+      <pre class="shell-block"><code><span class="comment"># 1. Stop Be</span>
+<span class="prompt">$ </span>curl -s -X POST http://&lt;jibo-ip&gt;:8779/terminate \
+  -H "Content-Type: application/json" \
+  -d '{"command": "@be/be"}'
+
+<span class="comment"># 2. Launch Be</span>
+<span class="prompt">$ </span>curl -s -X POST http://&lt;jibo-ip&gt;:8779/launch-dev \
+  -H "Content-Type: application/json" \
+  -d '{"command": "@be/be"}'</code></pre>
+
+      <hr>
+
+      <h2>HTTP API Reference</h2>
+
+      <p>All endpoints are on <code>http://&lt;jibo-ip&gt;:8779</code>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>GET</code></td>
+              <td><code>/skill/list</code></td>
+              <td>Returns a JSON list of all installed skills and their running state</td>
+            </tr>
+            <tr>
+              <td><code>POST</code></td>
+              <td><code>/launch-dev</code></td>
+              <td>Launch a skill. Body: <code>{"command": "skill-name"}</code></td>
+            </tr>
+            <tr>
+              <td><code>POST</code></td>
+              <td><code>/terminate</code></td>
+              <td>Stop a skill. Body: <code>{"command": "skill-name"}</code></td>
+            </tr>
+            <tr>
+              <td><code>GET</code></td>
+              <td><code>/version</code></td>
+              <td>Returns the SSM version string</td>
+            </tr>
+            <tr>
+              <td><code>GET</code></td>
+              <td><code>/devtools</code></td>
+              <td>Chrome DevTools target list for the currently running skill (port 9191)</td>
+            </tr>
+            <tr>
+              <td><code>GET</code></td>
+              <td><code>/ssm-devtools</code></td>
+              <td>Chrome DevTools target list for the SSM itself (port 12345)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>List installed skills</h3>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>curl -s http://&lt;jibo-ip&gt;:8779/skill/list | python3 -m json.tool</code></pre>
+
+      <p>Response:</p>
+
+      <pre><code>{
+  "skills": [
+    { "name": "@be/be",    "running": true,  "lastStartTime": 1717200000000 },
+    { "name": "@be/clock", "running": false, "lastStartTime": null },
+    { "name": "@be/idle",  "running": false, "lastStartTime": null }
+  ]
+}</code></pre>
+
+      <hr>
+
+      <h2>Debugging Skills</h2>
+
+      <p>
+        The SSM exposes Chrome DevTools for both the currently running skill and the SSM
+        process itself. Open these in a Chromium-based browser.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>What</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Skill debug logs (currently running skill)</td>
+              <td><code>http://&lt;jibo-ip&gt;:9191</code></td>
+            </tr>
+            <tr>
+              <td>SSM debug logs</td>
+              <td><code>http://&lt;jibo-ip&gt;:12345</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Opening the DevTools inspector</div>
+        <p>
+          In Chrome or Edge, go to <code>chrome://inspect</code>, click
+          <strong>Configure…</strong>, and add <code>&lt;jibo-ip&gt;:9191</code> and
+          <code>&lt;jibo-ip&gt;:12345</code>. The skill and SSM processes will appear
+          under "Remote Target" and you can open a full DevTools panel for each.
+        </p>
+      </div>
+
+      <hr>
+
+      <h2>Other Useful SSM Ports</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Port</th><th>Service</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>8779</code></td>
+              <td>Skills Service</td>
+              <td>Main SSM UI + API — list, launch, stop skills</td>
+            </tr>
+            <tr>
+              <td><code>9191</code></td>
+              <td>Skill debug proxy</td>
+              <td>Chrome DevTools for the currently running skill</td>
+            </tr>
+            <tr>
+              <td><code>12345</code></td>
+              <td>SSM debug proxy</td>
+              <td>Chrome DevTools for the SSM process itself</td>
+            </tr>
+            <tr>
+              <td><code>10004</code></td>
+              <td>Error Service</td>
+              <td>Simulate error codes in real-time; useful for testing skill error handling</td>
+            </tr>
+            <tr>
+              <td><code>8778</code></td>
+              <td>KB Service</td>
+              <td>Jibo's knowledge base (user data, learned names, etc.)</td>
+            </tr>
+            <tr>
+              <td><code>8001</code></td>
+              <td>Notifications Service</td>
+              <td>Push notifications to the skill layer</td>
+            </tr>
+            <tr>
+              <td><code>4111</code></td>
+              <td>System Monitoring</td>
+              <td>Real-time CPU, memory, disk, and process stats — useful for performance debugging</td>
+            </tr>
+            <tr>
+              <td><code>8686</code></td>
+              <td>Dev Shell</td>
+              <td>Developer mode only — CLI-over-HTTP for syncing and running skills</td>
+            </tr>
+            <tr>
+              <td><code>8585</code></td>
+              <td>System Manager</td>
+              <td>Platform-level service control (start/stop platform services, wifi, mode, etc.)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr>
+
+      <h2>How the SSM Fits In</h2>
+
+      <p>
+        When Jibo boots, the system manager starts the SSM as a managed service. The SSM
+        in turn:
+      </p>
+
+      <ul>
+        <li>Reads all installed skills from <code>/opt/jibo/Jibo/Skills/</code> and <code>/opt/jibo/Skills/</code></li>
+        <li>Launches <code>@be/be</code> (the Be skill) as the default running skill</li>
+        <li>Builds a combined voice-launch grammar from all skills' <code>launch.rule</code> files and feeds it to the Global Listen service</li>
+        <li>Monitors the ASR stream — when a launch phrase is recognised it terminates the current skill and starts the new one</li>
+        <li>Exposes the browser UI and HTTP API on port 8779 for manual control</li>
+      </ul>
+
+      <div class="callout note">
+        <div class="callout-title">✅ Installing custom skills</div>
+        <p>
+          Drop a skill package into <code>/opt/jibo/Skills/</code> (remount
+          <code>/</code> as writable first), then restart Be — the SSM will pick it up
+          automatically. The skill needs a valid <code>package.json</code> with a
+          <code>"jibo"</code> section and a <code>launch.rule</code> file to be
+          voice-launchable.
+        </p>
+      </div>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'skills-manager';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

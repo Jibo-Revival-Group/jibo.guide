@@ -71,6 +71,12 @@
       <ul>
         <li>Jibo in <code>int-developer</code> mode with SSH access</li>
         <li>
+          <strong>The Be skill (<code>@be/be</code>) must be running</strong> — jibo-llm
+          communicates with Jibo through the ROM API that Be exposes. If Jibo is showing
+          his eye, Be is running. See
+          <a href="/skills-manager.html">Skills Service Manager</a> if you need to start it.
+        </li>
+        <li>
           <strong><a href="/asr-service.html">Local ASR service</a> running on port 8088</strong>
           — jibo-llm uses this for wake word detection and speech transcription
         </li>
