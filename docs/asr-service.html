@@ -60,9 +60,24 @@
         </p>
       </div>
 
+      <div class="callout note">
+        <div class="callout-title">✅ JiboOS starts it for you automatically</div>
+        <p>
+          If you have the <strong>JiboOS</strong> community update installed, you don't need
+          to do anything. The Be skill's AI bridge (<code>ai-bridge.js</code>) checks port 8088
+          on demand and spawns <code>jibo-asr-service</code> automatically if it isn't running yet,
+          using the config at <code>/opt/jibo/Jibo/Skills/@be/be/be/jibo-asr-service.local.json</code>.
+          This is controlled by <code>"asrAutoStart": true</code> in <code>ai-bridge-config.json</code>.
+        </p>
+        <p>
+          The manual steps below are only needed if you want the service running
+          <em>before</em> the Be skill starts, or if you are not using JiboOS.
+        </p>
+      </div>
+
       <hr>
 
-      <h2>Starting the service</h2>
+      <h2>Starting the service manually</h2>
 
       <p>SSH into your Jibo and run:</p>
 
