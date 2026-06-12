@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Re-Commander · jibo.guide</title>
+  <meta name="description" content="Re-Commander is a local web-based control panel for Jibo — control head movement, speech, camera, display, and an LLM voice-AI loop from your browser.">
+  <meta property="og:site_name" content="jibo.guide">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jibo.guide/re-commander.html">
+  <meta property="og:title" content="Re-Commander · jibo.guide">
+  <meta property="og:description" content="Re-Commander is a local web-based control panel for Jibo — control head movement, speech, camera, display, and an LLM voice-AI loop from your browser.">
+  <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Re-Commander · jibo.guide">
+  <meta name="twitter:description" content="Re-Commander is a local web-based control panel for Jibo — control head movement, speech, camera, display, and an LLM voice-AI loop from your browser.">
+  <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+
+    <main>
+      <h1>Re-Commander</h1>
+
+      <p>
+        <a href="https://github.com/Jibo-Revival-Group/Re-Commander" target="_blank">Re-Commander</a>
+        is a local web-based control panel for Jibo. It connects directly to the robot's
+        on-device ROM (Robot Operating Module) API over your LAN, giving you a browser UI to
+        control head movement, trigger speech, listen, take photos, manage the display, and
+        run a built-in LLM voice-AI loop — all with no cloud dependency.
+      </p>
+
+      <div class="guide-img-wrap">
+        <img class="guide-img" src="/assets/re-commander-screenshot.png" style="width:100%; max-width:740px;"
+             alt="Re-Commander UI showing the control panel, camera feed, and event log">
+        <p class="guide-img-caption">Re-Commander running in a browser with Jibo connected.</p>
+      </div>
+
+      <hr>
+
+      <h2>Prerequisites</h2>
+
+      <ul>
+        <li>Jibo in <code>int-developer</code> mode with SSH access</li>
+        <li>
+          <strong><a href="/asr-service.html">Local ASR service</a> running on port 8088</strong>
+          — required for the Listen button and wake word detection
+        </li>
+        <li>Node.js 18 or later on your computer</li>
+        <li>Jibo and your computer on the same local network</li>
+      </ul>
+
+      <hr>
+
+      <h2>Installation</h2>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>git clone https://github.com/Jibo-Revival-Group/Re-Commander.git
+<span class="prompt">$ </span>cd Re-Commander
+<span class="prompt">$ </span>npm install</code></pre>
+
+      <h2>Configuration</h2>
+
+      <p>Open <code>server.js</code> and set your robot's IP address:</p>
+
+      <pre><code>const JIBO_HOST = '192.168.1.217';   // ← your Jibo's IP
+const JIBO_PORT = 8160;              // leave as-is</code></pre>
+
+      <p>
+        Optionally create a <code>.env</code> file to configure the LLM integration:
+      </p>
+
+      <pre><code>PORT=3000
+LLM_ENDPOINT=http://localhost:11434/v1/chat/completions
+LLM_MODEL=google/gemma-4-e4b
+LLM_API_KEY=sk-...   # only needed for cloud providers</code></pre>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ LLM endpoint</div>
+        <p>
+          The LLM integration defaults to a local <a href="https://ollama.com" target="_blank">Ollama</a>
+          instance. Any OpenAI-compatible endpoint works — OpenAI, Anthropic via proxy, LM Studio, etc.
+          If you skip the <code>.env</code> the Voice AI panel will use
+          <code>http://localhost:11434/v1/chat/completions</code> by default.
+        </p>
+      </div>
+
+      <h2>Running</h2>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>npm start</code></pre>
+
+      <p>
+        Open <code>http://localhost:3000</code> in your browser. The status indicator in the
+        top-left turns green once a session with the robot is established. If Jibo is unreachable
+        the server retries automatically every 3 seconds.
+      </p>
+
+      <hr>
+
+      <h2>What you can do</h2>
+
+      <h3>Head navigation</h3>
+      <p>
+        The arrow pad moves Jibo's head one step at a time, waiting for acknowledgment before
+        sending the next command — no drift or command queuing. You can also <strong>click
+        anywhere on the camera feed</strong> to make Jibo look at that point in the scene,
+        with an optional continuous tracking mode.
+      </p>
+
+      <h3>Say &amp; Listen</h3>
+      <p>
+        Type any text (plain or ESML markup) and press <strong>▶ Say</strong>. Press
+        <strong>🎙 Listen</strong> to trigger Jibo's on-board ASR — the transcript appears
+        below. Enable <strong>Auto-listen on hotword</strong> to have Re-Commander listen
+        automatically every time "Hey Jibo" is detected.
+      </p>
+
+      <h3>Voice AI loop</h3>
+      <p>
+        Check <strong>LLM voice loop</strong> to enable a continuous hotword → listen →
+        LLM → speak pipeline. Configure the endpoint, model, and system prompt directly
+        in the UI or via <code>.env</code>. The built-in system prompt instructs the LLM
+        to respond in ESML so Jibo speaks with matching animations.
+      </p>
+
+      <h3>Camera</h3>
+      <p>
+        Start a live MJPEG video stream from Jibo's right camera, take high-res stills,
+        and browse a photo strip of everything captured this session. Photos are saved to
+        <code>photos/</code> in the project folder.
+      </p>
+
+      <h3>Display</h3>
+      <p>
+        Show Jibo's animated eye, play any of his built-in eye animations from a dropdown
+        (blinks, expressions, emoji, transitions), or display custom text or an image URL
+        on his screen.
+      </p>
+
+      <h3>Subscriptions &amp; events</h3>
+      <p>
+        Toggle live streams for entity detection (person tracking), motion events, and head
+        touch. A real-time event log on the right shows every message from the robot.
+      </p>
+
+      <hr>
+
+      <h2>Keyboard shortcuts</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Key</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>↑ ↓ ← →</code></td><td>Move Jibo's head</td></tr>
+            <tr><td><code>Space</code></td><td>Center Jibo's head</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">✅ Source &amp; issues</div>
+        <p>
+          <a href="https://github.com/Jibo-Revival-Group/Re-Commander" target="_blank">
+            github.com/Jibo-Revival-Group/Re-Commander
+          </a>
+        </p>
+      </div>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 're-commander';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

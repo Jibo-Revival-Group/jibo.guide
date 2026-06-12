@@ -25,8 +25,11 @@ const NAV_PAGES = [
   {
     section: 'After the Mod',
     items: [
-      { id: 'post-mod',         title: 'SSH & Next Steps',      url: '/post-mod.html',       breadcrumb: ['After the Mod'] },
-      { id: 'troubleshooting',  title: 'Troubleshooting',       url: '/troubleshooting.html', breadcrumb: ['After the Mod'] },
+      { id: 'post-mod',        title: 'SSH & Next Steps',       url: '/post-mod.html',        breadcrumb: ['After the Mod'] },
+      { id: 'asr-service',     title: 'Local ASR Service',      url: '/asr-service.html',     breadcrumb: ['After the Mod'] },
+      { id: 're-commander',    title: 'Re-Commander',           url: '/re-commander.html',    breadcrumb: ['After the Mod'] },
+      { id: 'jibo-llm',        title: 'jibo-llm',               url: '/jibo-llm.html',        breadcrumb: ['After the Mod'] },
+      { id: 'troubleshooting', title: 'Troubleshooting',        url: '/troubleshooting.html', breadcrumb: ['After the Mod'] },
     ]
   }
 ];
@@ -39,8 +42,11 @@ const FLAT_PAGES = [
   { id: 'manual-1',         url: '/manual-1.html',        title: '1. Environment Setup',           prevId: 'welcome' },
   { id: 'manual-2',         url: '/manual-2.html',        title: '2. Dump the eMMC' },
   { id: 'manual-3',         url: '/manual-3.html',        title: '3. Flash & First Boot' },
-  { id: 'post-mod',         url: '/post-mod.html',        title: 'SSH & Next Steps' },
-  { id: 'troubleshooting',  url: '/troubleshooting.html', title: 'Troubleshooting' },
+  { id: 'post-mod',        url: '/post-mod.html',        title: 'SSH & Next Steps' },
+  { id: 'asr-service',    url: '/asr-service.html',     title: 'Local ASR Service' },
+  { id: 're-commander',   url: '/re-commander.html',    title: 'Re-Commander' },
+  { id: 'jibo-llm',       url: '/jibo-llm.html',        title: 'jibo-llm' },
+  { id: 'troubleshooting', url: '/troubleshooting.html', title: 'Troubleshooting' },
 ];
 
 function buildSidebar() {

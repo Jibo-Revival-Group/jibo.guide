@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jibo-llm · jibo.guide</title>
+  <meta name="description" content="jibo-llm gives Jibo a brain again — a hotword-triggered LLM agent with speech, vision, web search, and expressive animations. Works with OpenAI, Ollama, and any compatible endpoint.">
+  <meta property="og:site_name" content="jibo.guide">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jibo.guide/jibo-llm.html">
+  <meta property="og:title" content="jibo-llm · jibo.guide">
+  <meta property="og:description" content="jibo-llm gives Jibo a brain again — a hotword-triggered LLM agent with speech, vision, web search, and expressive animations. Works with OpenAI, Ollama, and any compatible endpoint.">
+  <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="jibo-llm · jibo.guide">
+  <meta name="twitter:description" content="jibo-llm gives Jibo a brain again — a hotword-triggered LLM agent with speech, vision, web search, and expressive animations. Works with OpenAI, Ollama, and any compatible endpoint.">
+  <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/jibo" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+
+    <main>
+      <h1>jibo-llm</h1>
+
+      <p>
+        <a href="https://github.com/Jibo-Revival-Group/jibo-llm" target="_blank">jibo-llm</a>
+        gives Jibo a brain again. It's a hotword-triggered conversational agent that connects
+        your Jibo to any OpenAI-compatible LLM — GPT-4o, Claude, local models via Ollama or
+        LM Studio, and more. Say <strong>"Hey Jibo"</strong> and have a real conversation,
+        complete with expressive animations, vision, and web search.
+      </p>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ How it works</div>
+        <p>When you say "Hey Jibo", jibo-llm:</p>
+        <ol>
+          <li>Listens for your speech via Jibo's on-board microphone</li>
+          <li>Sends the transcript to an LLM with a system prompt and tool definitions</li>
+          <li>Executes tool calls the LLM makes — speaking, animating, taking photos, searching the web</li>
+          <li>Loops until the conversation ends, then resumes listening for the hotword</li>
+        </ol>
+        <p>Conversations are fully interruptible — saying "Hey Jibo" mid-conversation aborts and starts fresh.</p>
+      </div>
+
+      <hr>
+
+      <h2>Prerequisites</h2>
+
+      <ul>
+        <li>Jibo in <code>int-developer</code> mode with SSH access</li>
+        <li>
+          <strong><a href="/asr-service.html">Local ASR service</a> running on port 8088</strong>
+          — jibo-llm uses this for wake word detection and speech transcription
+        </li>
+        <li>Node.js 18 or later on your computer</li>
+        <li>An OpenAI-compatible API endpoint (cloud or local)</li>
+      </ul>
+
+      <hr>
+
+      <h2>Quick start</h2>
+
+      <h3>1. Clone &amp; install</h3>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>git clone https://github.com/Jibo-Revival-Group/jibo-llm.git
+<span class="prompt">$ </span>cd jibo-llm
+<span class="prompt">$ </span>npm install</code></pre>
+
+      <h3>2. Configure</h3>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>cp .env.example .env</code></pre>
+
+      <p>Edit <code>.env</code>:</p>
+
+      <pre><code>JIBO_IP=192.168.1.217          # your Jibo's local IP
+
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_API_TOKEN=sk-your-key-here
+LLM_MODEL_ID=gpt-4o
+
+BRAVE_API_KEY=your-key         # optional — enables web search</code></pre>
+
+      <h3>3. Run</h3>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>npm start</code></pre>
+
+      <p>You'll see:</p>
+
+      <pre><code>[jibo-llm] Connecting to Jibo at 192.168.1.217…
+[jibo-llm] Connected — session abc123
+[jibo-llm] Ready — listening for "Hey Jibo"…</code></pre>
+
+      <p>Say <strong>"Hey Jibo"</strong> and start talking.</p>
+
+      <hr>
+
+      <h2>LLM provider options</h2>
+
+      <p>Any OpenAI-compatible endpoint works:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Provider</th><th><code>LLM_BASE_URL</code></th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Ollama (local)</td>
+              <td><code>http://localhost:11434/v1</code></td>
+              <td>Free, runs offline. Set <code>LLM_API_TOKEN=ollama</code></td>
+            </tr>
+            <tr>
+              <td>LM Studio (local)</td>
+              <td><code>http://localhost:1234/v1</code></td>
+              <td>Free, runs offline. Set <code>LLM_API_TOKEN=lm-studio</code></td>
+            </tr>
+            <tr>
+              <td>OpenAI</td>
+              <td><code>https://api.openai.com/v1</code></td>
+              <td>Requires API key</td>
+            </tr>
+            <tr>
+              <td>OpenRouter</td>
+              <td><code>https://openrouter.ai/api/v1</code></td>
+              <td>Access many models via one key</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr>
+
+      <h2>What Jibo can do</h2>
+
+      <p>
+        The LLM can call these tools during a conversation. The system prompt includes a full
+        ESML reference so the model uses Jibo's animation and sound system automatically:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Tools</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Speech</td>
+              <td><code>say</code> (with ESML animations), <code>listen</code>, <code>end_conversation</code></td>
+            </tr>
+            <tr>
+              <td>Camera</td>
+              <td><code>take_photo</code> — image is sent to the LLM for visual understanding</td>
+            </tr>
+            <tr>
+              <td>Display</td>
+              <td><code>show_text</code>, <code>show_image</code>, <code>show_eye</code></td>
+            </tr>
+            <tr>
+              <td>Movement</td>
+              <td><code>look_at_angle</code> — yaw ±180°, pitch ±30°</td>
+            </tr>
+            <tr>
+              <td>Audio</td>
+              <td><code>set_volume</code> (0.0 – 1.0)</td>
+            </tr>
+            <tr>
+              <td>Web</td>
+              <td><code>web_search</code> (Brave), <code>fetch_url</code> (reads web pages)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>ESML — expressive speech</h3>
+
+      <p>
+        The LLM uses ESML (Embodied Speech Markup Language) tags inside <code>say</code> calls
+        to trigger Jibo's animations in sync with speech:
+      </p>
+
+      <pre><code><span class="comment">&lt;!-- React happily --&gt;</span>
+&lt;anim cat='happy' nonBlocking='true' endNeutral='true'/&gt; That's great news!
+
+<span class="comment">&lt;!-- Laugh --&gt;</span>
+&lt;ssa cat='laughing' nonBlocking='true'/&gt; That's hilarious!
+
+<span class="comment">&lt;!-- Show a heart emoji --&gt;</span>
+&lt;anim cat='emoji' filter='!(hf), &amp;(heart)' nonBlocking='true'/&gt; I love that!</code></pre>
+
+      <hr>
+
+      <h2>Agent loop</h2>
+
+      <p>
+        The agent runs a max of 25 turns per conversation. Key behaviors:
+      </p>
+
+      <ul>
+        <li><strong>Speech chaining</strong> — multiple <code>say</code> calls queue and play sequentially without overlap</li>
+        <li><strong>Tool ordering</strong> — <code>say</code> executes first, then actions (photo, search), then <code>listen</code> last</li>
+        <li><strong>Interruptible</strong> — "Hey Jibo" mid-conversation aborts via <code>AbortController</code> and starts fresh</li>
+        <li><strong>Image pruning</strong> — only the 2 most recent photos are kept in context to control token cost</li>
+        <li><strong>Retry logic</strong> — automatic exponential backoff on 429 and 5xx errors</li>
+      </ul>
+
+      <div class="callout note">
+        <div class="callout-title">✅ Source &amp; issues</div>
+        <p>
+          <a href="https://github.com/Jibo-Revival-Group/jibo-llm" target="_blank">
+            github.com/Jibo-Revival-Group/jibo-llm
+          </a>
+        </p>
+      </div>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/jibo">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'jibo-llm';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
