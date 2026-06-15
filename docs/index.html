@@ -43,6 +43,7 @@
       <em>Proceed only if you understand and accept these risks.</em>
     </div>
 
+    <div class="welcome-layout">
     <main>
       <div class="hero">
         <div class="hero-eye"></div>
@@ -69,6 +70,18 @@
       </div>
 
       <hr>
+
+      <!-- Jibos-for-sale embed. On small / narrow screens it renders here as a
+           single horizontally-scrollable row above "Choose Your Route". On wide
+           desktop (≥1500px) js/buy-embed.js relocates the iframe to the
+           right-gutter side panel below. -->
+      <div id="buy-embed-inline" class="buy-embed-inline">
+        <div class="buy-embed-meta">
+          <div class="buy-embed-head"><span aria-hidden="true">🤖</span> Jibos for sale</div>
+          <p class="buy-embed-note">Not affiliated with the listing owners — read each listing carefully before buying.</p>
+        </div>
+        <div class="buy-embed-scroll" id="buy-embed-host-inline"></div>
+      </div>
 
       <h2 id="choose-route">Choose Your Route</h2>
       <p>
@@ -210,6 +223,15 @@
       <div class="page-nav"></div>
     </main>
 
+    <aside id="buy-embed-side" class="buy-embed-side" aria-label="Jibos for sale">
+      <div class="buy-embed-meta">
+        <div class="buy-embed-head"><span aria-hidden="true">🤖</span> Jibos for sale</div>
+        <p class="buy-embed-note">Not affiliated with the listing owners — read each listing carefully before buying.</p>
+      </div>
+      <div class="buy-embed-host" id="buy-embed-host-side"></div>
+    </aside>
+    </div>
+
     <footer>
       <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
       <div class="footer-links">
@@ -223,5 +245,6 @@
   <script>const PAGE_ID = 'welcome';</script>
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
+  <script src="/js/buy-embed.js"></script>
 </body>
 </html>
