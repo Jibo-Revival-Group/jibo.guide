@@ -39,6 +39,12 @@ const NAV_PAGES = [
       { id: 'local-pegasus',   title: 'Local Pegasus',          url: '/local-pegasus.html',   breadcrumb: ['After the Mod'] },
       { id: 'troubleshooting', title: 'Troubleshooting',        url: '/troubleshooting.html', breadcrumb: ['After the Mod'] },
     ]
+  },
+  {
+    section: 'OpenJibo Cloud',
+    items: [
+      { id: 'openjibo-host',        title: 'Host an OpenJibo Server',       url: '/openjibo-host.html',        breadcrumb: ['OpenJibo'] },
+    ]
   }
 ];
 
@@ -58,6 +64,7 @@ const FLAT_PAGES = [
   { id: 'jibo-llm',        url: '/jibo-llm.html',       title: 'jibo-llm' },
   { id: 'local-pegasus',   url: '/local-pegasus.html',  title: 'Local Pegasus' },
   { id: 'troubleshooting', url: '/troubleshooting.html', title: 'Troubleshooting' },
+  { id: 'openjibo-host', url: '/openjibo-host.html', title: 'Host an OpenJibo Server' },
 ];
 
 function buildSidebar() {
@@ -89,7 +96,7 @@ function buildSidebar() {
   html += `</nav>
     <div class="sidebar-footer">
       Community project. Not affiliated with Jibo&nbsp;Inc.<br>
-      <a href="https://discord.gg/jibo" target="_blank">Discord</a> ·
+      <a href="https://discord.gg/A34eFkKVFG" target="_blank">Discord</a> ·
       <a href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
     </div>
   `;
