@@ -60,88 +60,24 @@
 
       <hr>
 
-      <h2 id="oj-1">1. Downloading the OpenJibo Server</h2>
+      <h2 id="oj-1">1. Setting up the server</h2>
 
-      <p>The first step for hosting the OpenJibo Server is to download the server from the <a href="https://github.com/Jibo-Revival-Group/JiboExperiments">OpenJibo GitHub</a>.</p>
+      <p>Recently a tool called EZJiboServer was created to make the process of hosting the OpenJibo Server much easier.</p>
 
-      <h3>Using Git CLI</h3>
+      <h3>Run Installer Script</h3>
       <p>
-        I encourage using Git CLI to download the server.
+        I encourage using the installer script to download the server. This will automatically download the server and set it (along with it's dependencies) up for you.
       </p>
-      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~ && git clone https://github.com/Jibo-Revival-Group/JiboExperiments.git</code></pre>
-
-      <p>
-        This will download the server to your home directory. Once downloaded, you can navigate to the server directory.
-      </p>
-      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/JiboExperiments</code></pre>
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~ && curl -fsSL https://raw.githubusercontent.com/Jibo-Revival-Group/EZJiboServerGit/refs/heads/master/setup.sh | bash</code></pre>
 
       <hr>
 
-      <h2>2. Prepare your environment</h2>
+      <h2>2. Run the server</h2>
 
       <p>
-        Before you can build the OpenJibo Server, you need to prepare your environment.
-        This is a pretty simple process, but it's important to follow the steps correctly.
+        Once the server is downloaded and set up, you can run the server.
       </p>
-
-      <ul>
-        <li>
-          .NET 10 <a href="https://learn.microsoft.com/en-us/dotnet/core/install/linux">(Install Guide)</a>
-        </li>
-        <li>
-          PowerShell
-        </li>
-        <li>
-          openssl
-        </li>
-      </ul>
-
-      <p>
-        If you're gonna be using a real Jibo, you'll also need some audio tools.
-      </p>
-
-      <ul>
-        <li>
-          ffmpeg
-        </li>
-        <li>
-          whisper.cpp (Speech-to-text AI)
-        </li>
-      </ul>
-
-      <hr>
-
-      <h2>3. Configure the OpenJibo Server</h2>
-
-      <p>
-        The server has a .env file that you need to configure. This file is important for the server to work properly.
-      </p>
-
-      <ul>
-        <li>
-          First, you need to copy the .env.example file to .env.
-          <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/JiboExperiments/OpenJibo && cp .env.example .env</code></pre>
-        </li>
-      </ul>
-      <p>Now, open the file in your preferred text editor. You now want to configure the variables. Here are the variables you should configure.</p>
-      <ul>
-        <li>
-          <p><code>OPENJIBO_SEARCH_BACKEND</code> This is where you choose the backend for Jibo Search. You can use Wolfram Alpha, ChatGPT, or Ollama.
-          You also need to configure the API key for the backend you choose. They are seperated by a exclaimation mark (!). Here is an example of how it should look.
-        <br> <code>OPENJIBO_SEARCH_BACKEND=ChatGPT!sk-proj-HRkbtWjtbJnrhwmOmrHrm....</code></p>
-        </li>
-        <li>
-          <p><code>OPENJIBO_SEARCH_FALLBACK</code> This is where you choose the fallback backend for Jibo Search. You can use Wolfram Alpha, ChatGPT, or Ollama. It is the same as the OPENJIBO_SEARCH_BACKEND, but it is the fallback if the main backend fails.
-        </li>
-        <li>
-          <p><code>OPENJIBO_STT_WHISPER_CLI_PATH</code> <strong>(Only need this if you're using a real Jibo)</strong> This is where you put the path to your whisper.cpp binary. You can find the path by running <code>which whisper-cli</code> in your terminal.</p>
-        </li>
-        <li>
-          <p><code>OPENJIBO_STT_WHISPER_MODEL_PATH</code> <strong>(Only need this if you're using a real Jibo)</strong> This is where you put the path to your whisper.cpp model. I use the ggml-base.en.bin model./</p>
-        </li>
-      </ul>
-      
-      <p><i>To be continued...</i></p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/EZJiboServer && ./run.sh</code></pre>
       
       <div class="page-nav"></div>
     </main>
