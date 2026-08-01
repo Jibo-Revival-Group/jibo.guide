@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pair Home Assistant · jibo.guide</title>
+
+  <meta name="description" content="How to pair Home Assistant with your Jibo.">
+  <meta property="og:site_name" content="jibo.guide">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jibo.guide/haint.html">
+  <meta property="og:title" content="Pair Home Assistant with your Jibo — jibo.guide">
+  <meta property="og:description" content="How to pair Home Assistant with your Jibo.">
+  <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pair Home Assistant with your Jibo — jibo.guide">
+  <meta name="twitter:description" content="How to pair Home Assistant with your Jibo.">
+  <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="overlay" class="overlay"></div>
+  <div id="sidebar"></div>
+
+  <div id="content-wrapper">
+    <div id="header">
+      <button id="menu-toggle">☰</button>
+      <div class="header-breadcrumb"></div>
+      <div class="header-right">
+        <a class="header-link" href="https://discord.gg/A34eFkKVFG" target="_blank">Discord</a>
+        <a class="header-link" href="https://github.com/Jibo-Revival-Group" target="_blank">GitHub</a>
+      </div>
+    </div>
+
+    <div class="site-disclaimer">
+      <strong>⚠️ Disclaimer:</strong> This guide is provided for informational and educational purposes only.
+      All actions you take based on information found on this site are done <strong>entirely at your own risk</strong>.
+      The Jibo Revival Group and contributors to jibo.guide are <strong>not responsible or liable</strong> for any
+      damage, data loss, or malfunction to your device or property.
+      <em>Proceed only if you understand and accept these risks.</em>
+    </div>
+    <main>
+      <h1>Pairing Home Assistant with your Jibo</h1>
+
+      <h2 id="oj-1">1. Add OpenJibo to Home Assistant</h2>
+
+      <p>(Soon to be added to default repo) Add it via the HACS store.</p>
+
+      <h2 id="oj-2">2. Configure the integration</h2>
+
+      <ol>
+        <li>Go to your Devices menu and click "Add Integration"</li>
+        <li>Select/Search OpenJibo in the new menu</li>
+        <li>Enter the URL of your OpenJibo Server (e.g. https://api.5x1.com:80)</li>
+        <li>Set an Integration Name for your Jibo (it doesn't matter what you pick)</li>
+        <li>Enter the IP of your Robot (optional, requires HA to be on the same network as Jibo)</li>
+        <li>Go to the OpenJibo portal (SERVER_URL/portal)</li>
+        <li>On the portal, sign in via the code given by your Jibo</li>
+        <li>Go to your Home Assistant Notifications and copy your pairing code</li>
+        <li>Paste your pairing code into the OpenJibo portal</li>
+      </ol>
+
+      <div class="page-nav"></div>
+    </main>
+
+    <footer>
+      <span>jibo.guide — Community Project · Not affiliated with Jibo Inc.</span>
+      <div class="footer-links">
+        <a href="https://discord.gg/A34eFkKVFG">Discord</a>
+        <a href="https://github.com/Jibo-Revival-Group">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>const PAGE_ID = 'openjibo-host';</script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

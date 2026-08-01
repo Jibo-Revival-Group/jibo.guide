@@ -45,6 +45,7 @@ const NAV_PAGES = [
     section: 'OpenJibo Cloud',
     items: [
       { id: 'openjibo-host',        title: 'Host an OpenJibo Server',       url: '/openjibo-host.html',        breadcrumb: ['OpenJibo'] },
+      { id: 'haint',                title: 'Pair Home Assistant with your Jibo', url: '/haint.html',           breadcrumb: ['OpenJibo'] },
     ]
   }
 ];
@@ -67,6 +68,7 @@ const FLAT_PAGES = [
   { id: 'local-pegasus',   url: '/local-pegasus.html',  title: 'Local Pegasus' },
   { id: 'troubleshooting', url: '/troubleshooting.html', title: 'Troubleshooting' },
   { id: 'openjibo-host', url: '/openjibo-host.html', title: 'Host an OpenJibo Server' },
+  { id: 'haint',                title: 'Pair Home Assistant with your Jibo', url: '/haint.html',           breadcrumb: ['OpenJibo'] },
 ];
 
 function buildSidebar() {
@@ -91,7 +93,7 @@ function buildSidebar() {
     for (const item of group.items) {
       const active = item.id === currentId ? ' active' : '';
       const sub = item.sub ? ' nav-sub' : '';
-      html += `<a href="${item.url}" class="${active}${sub}".trimStart()>${item.title}</a>`;
+      html += `<a href="${item.url}" class="${(active + sub).trim()}">${item.title}</a>`;
     }
   }
 
