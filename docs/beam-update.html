@@ -96,11 +96,10 @@
         This updates the BEam skill packs and normally restarts the Be skill. It may take
         several minutes and requires the robot to reach the configured OTA/package server.
         The script reads the robot's configured classic OTA endpoint; it is not automatically
-        pointed at OpenJibo or BEaker. Inspect <code>/var/jibo/credentials.json</code> and the
-        current script before applying it. If you are self-hosting, see the
-        <a href="/openjibo-host.html">OpenJibo/OTA notes</a> and
-        <a href="https://github.com/Jibo-Revival-Group/BEaker" target="_blank">BEaker</a>
-        setup scripts.
+        pointed at the OpenJibo server. Inspect <code>/var/jibo/credentials.json</code> and
+        the current script before applying it. If you are self-hosting, see the
+        <a href="/openjibo-host.html">OpenJibo/OTA notes</a> and the
+        <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/tree/main/OpenJibo" target="_blank">OpenJibo server repository</a>.
       </p>
 
       <hr>
@@ -116,59 +115,14 @@
 
       <hr>
 
-      <h2>Classic OTA: BEaker</h2>
+      <h2>OTA update flow</h2>
       <p>
-        The community has also reverse-engineered the classic Jibo OTA request flow. The
-        public <a href="https://github.com/Jibo-Revival-Group/BEaker" target="_blank">BEaker</a>
-        server can serve a BEam update catalog and package downloads from a local network
-        host. It is not the OpenJibo cloud and it does not recreate every original service.
+        The OTA update flow is detailed in the upstream
+        <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/tree/main/OpenJibo" target="_blank">OpenJibo server repository</a>
+        if you want to inspect or recreate it. It follows the documented protocol and should
+        be trivial to recreate for interested developers; implementation details
+        remain subject to the current OpenJibo release notes.
       </p>
-
-      <p>
-        To run BEaker locally, clone the repository, review <code>config.json</code>, and
-        start its Python server; the default listener is <code>0.0.0.0:8042</code>:
-      </p>
-
-      <pre class="shell-block"><code><span class="prompt">$ </span>git clone https://github.com/Jibo-Revival-Group/BEaker.git
-<span class="prompt">$ </span>cd BEaker</code></pre>
-
-      <p>
-        Set <code>public_base_url</code> in <code>config.json</code> to
-        <code>http://&lt;server-ip&gt;:8042</code> before starting. The sample config contains
-        a legacy public value; leaving it unchanged makes the catalog advertise unusable
-        package and backup URLs on a local network.
-      </p>
-
-      <pre class="shell-block"><code><span class="prompt">$ </span>python3 server.py</code></pre>
-
-      <p>
-        On the robot, use BEaker's current
-        <a href="https://github.com/Jibo-Revival-Group/BEaker/blob/main/scripts/point-ota.sh" target="_blank"><code>point-ota.sh</code></a>
-        to set <code>credentials.endpoint</code> and the matching filter. The optional
-        <a href="https://github.com/Jibo-Revival-Group/BEaker/blob/main/scripts/prep-robot-ota.sh" target="_blank">prep script</a>
-        also patches the stock backup/restore tools and has additional power, storage, and
-        internet prerequisites; read it before running it.
-      </p>
-
-      <ol>
-        <li>The robot's OTA client is given a replacement <code>credentials.endpoint</code>
-          and a matching OTA filter such as <code>fcs</code>.</li>
-        <li>A catalog request checks the subsystem's installed version, target, and filter;
-          an offer is only valid when those values match the manifest.</li>
-        <li>The real install path then performs the system-manager readiness checks, backup
-          call, package download, and apply/reboot sequence. A successful “Check” is not an
-          installation.</li>
-      </ol>
-
-      <div class="callout warn">
-        <div class="callout-title">⚠️ Know what BEaker does not save</div>
-        <p>
-          BEaker's compatibility backup endpoints consume and checksum uploads but do not
-          persist backup payloads for later restore; media endpoints are also compatibility
-          no-ops. Use a full eMMC dump or a deliberate partition backup as your recovery
-          artifact. Read BEaker's current scripts before pointing a robot at a server.
-        </p>
-      </div>
       
       <div class="page-nav"></div>
     </main>

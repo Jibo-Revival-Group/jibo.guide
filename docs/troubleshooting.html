@@ -245,15 +245,14 @@
       <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_updater.py --ip &lt;jibo-ip&gt; --build-path path/to/build</code></pre>
 
       <div class="callout info">
-        <div class="callout-title">ℹ️ Classic OTA is not the same as OpenJibo</div>
+        <div class="callout-title">ℹ️ OTA flow and OpenJibo</div>
         <p>
           A successful SSH connection only proves the local recovery path worked. The
-          original update service is gone. The community's
-          <a href="https://github.com/Jibo-Revival-Group/BEaker" target="_blank">BEaker</a>
-          project now serves a BEam-compatible classic OTA catalog and package downloads,
-          but its backup and media endpoints are compatibility no-ops and it is not a
-          complete replacement cloud. For cloud/device pairing, use the
-          <a href="/openjibo-host.html">OpenJibo path</a> and its routing requirements.
+          original update service is gone. The OTA update flow is detailed in the upstream
+          <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/tree/main/OpenJibo" target="_blank">OpenJibo server repository</a>
+          and should be trivial to recreate for interested developers. For
+          cloud/device pairing, use the <a href="/openjibo-host.html">OpenJibo path</a>
+          and its routing requirements.
         </p>
       </div>
 

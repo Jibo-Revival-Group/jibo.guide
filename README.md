@@ -20,7 +20,7 @@ This is a project of the [Jibo Revival Group](https://github.com/Jibo-Revival-Gr
 | Route B — Manual (3 steps) | Build the Jibo-specific ShofEL2 payload, dump eMMC, modify `/var`, flash back |
 | SSH & Next Steps | Community software, useful ports, local voice round-trip |
 | OpenJibo Cloud | Run the replacement cloud locally or use the managed path |
-| BEam / BEaker | Current system skills and classic OTA server status |
+| BEam / OTA Notes | Current system skills and OpenJibo OTA flow status |
 | Troubleshooting | Common failure modes and fixes |
 
 ## Running Locally
