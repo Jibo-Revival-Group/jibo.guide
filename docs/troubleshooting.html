@@ -76,9 +76,10 @@
           you see the red LED.
         </li>
         <li>
-          If you see <code>0955:9134</code> instead of <code>0955:7740</code>: this is an
-          alternative PID that sometimes appears. It may work, but if ShofEL2 fails, try
-          unplugging, waiting 10 seconds, and re-entering RCM.
+          The current AutoMod detector expects the Jibo APX device as
+          <code>0955:7740</code>. If a different NVIDIA USB identifier appears, do not
+          guess at a write operation; unplug, re-enter RCM, and check the current tool
+          documentation or ask in Discord.
         </li>
       </ul>
 
@@ -117,14 +118,15 @@
           (<code>gcc-arm-none-eabi</code> on Debian, <code>arm-none-eabi-gcc</code> on Arch).
         </li>
         <li>
-          Check that you cloned the correct branch:
-          <code>improvements/IncreasedUSBReadWriteSpeed</code>
-          from <code>devsparx/ShofEL2-for-T124</code>. Other branches or forks may not
-          work with Jibo.
+          Use the Jibo-specific ShofEL2 source bundled in the current
+          <a href="https://github.com/Jibo-Revival-Group/JiboAutoMod" target="_blank">JiboAutoMod</a>
+          repository (<code>make -C Shofel</code>). The obsolete third-party branch
+          referenced by earlier versions of this guide is no longer the documented source.
         </li>
         <li>
           "Error code 1" at the end of <code>make</code> is often harmless — check if
-          <code>shofel2_t124</code> was created anyway with <code>ls -la shofel2_t124</code>.
+          <code>shofel2_t124</code> was created anyway with
+          <code>ls -la Shofel/shofel2_t124</code>.
         </li>
       </ul>
 
@@ -133,20 +135,21 @@
       <h2>3. Dump Crashes Near the End (98–99%)</h2>
 
       <p>
-        The last partition on Jibo's eMMC is mostly empty space and sometimes causes
-        the read to time out. If the dump reaches past 90%, the important data is
-        captured.
+        The last partition on Jibo's eMMC contains a large amount of empty space and a
+        long read can fail near the end. A progress percentage is not a validity check:
+        a truncated image is not a complete backup.
       </p>
 
       <ul>
         <li>
-          You can proceed with a ~99% dump — the missing sectors are from the end of
-          the empty partition 6.
+          Do not proceed with a partial image as if it were complete. Confirm that the
+          GPT and the full <code>/var</code> partition are readable, then either re-run
+          the full dump or switch to the documented fast path.
         </li>
         <li>
-          If you only need developer mode access, consider using <strong>fast mode</strong>
-          (<code>--mode-json-only</code> in the automod tool) which only reads the
-          <code>/var</code> partition (~500 MB) and doesn't touch partition 6.
+          If you only need developer mode access, use <strong>fast mode</strong>
+          (<code>--mode-json-only</code> in the AutoMod tool), which reads the GPT and
+          <code>/var</code> (roughly 500 MB) and does not create a full system backup.
         </li>
       </ul>
 
@@ -241,6 +244,19 @@
       <p><strong>Can't find <code>build/</code> in archive:</strong></p>
       <pre class="shell-block"><code><span class="prompt">$ </span>python3 jibo_updater.py --ip &lt;jibo-ip&gt; --build-path path/to/build</code></pre>
 
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Classic OTA is not the same as OpenJibo</div>
+        <p>
+          A successful SSH connection only proves the local recovery path worked. The
+          original update service is gone. The community's
+          <a href="https://github.com/Jibo-Revival-Group/BEaker" target="_blank">BEaker</a>
+          project now serves a BEam-compatible classic OTA catalog and package downloads,
+          but its backup and media endpoints are compatibility no-ops and it is not a
+          complete replacement cloud. For cloud/device pairing, use the
+          <a href="/openjibo-host.html">OpenJibo path</a> and its routing requirements.
+        </p>
+      </div>
+
       <hr>
 
       <h2>8. Error Codes Reference</h2>
@@ -256,7 +272,7 @@
           <tr><th>Error Code(s)</th><th>Shows Popup?</th><th>Notes</th></tr>
         </thead>
         <tbody>
-          <tr><td>L2, L7, Q1</td><td>No</td><td>Server connection errors (expected without cloud)</td></tr>
+          <tr><td>L2, L7, Q1</td><td>No</td><td>Server connection errors when no configured replacement is reachable</td></tr>
           <tr><td>WIFI4, WIFI4a</td><td>Yes</td><td>WiFi errors — still show popup</td></tr>
           <tr><td>Q4</td><td>No</td><td>—</td></tr>
           <tr><td>N1–N12</td><td>No</td><td>Network errors</td></tr>
@@ -266,6 +282,17 @@
       </div>
 
       <hr>
+
+      <h2>9. Full eMMC Recovery</h2>
+
+      <p>
+        If a robot needs a complete image restore rather than a <code>/var</code> mode
+        change, the community maintains
+        <a href="https://github.com/Jibo-Revival-Group/JiboRestore" target="_blank">JiboRestore</a>.
+        It writes from sector zero and can overwrite the robot's calibration and system
+        data. Use only an image made for that same robot, run its dry-run/validation first,
+        and keep the original dump untouched. This is a recovery tool, not a routine update.
+      </p>
 
       <h2>Still Stuck?</h2>
 

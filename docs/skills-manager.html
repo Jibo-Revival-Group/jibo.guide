@@ -90,8 +90,8 @@
           <thead><tr><th>Path</th><th>Contents</th></tr></thead>
           <tbody>
             <tr>
-              <td><code>/opt/jibo/Jibo/Skills/@be/</code></td>
-              <td>System skills bundled with Be: <code>@be/be</code>, <code>@be/clock</code>, <code>@be/idle</code>, etc.</td>
+              <td><code>/opt/jibo/Jibo/Skills/@be/be/</code></td>
+              <td>The <code>@be/be</code> host and, on current BEam images, its bundled packs under <code>skills/</code>.</td>
             </tr>
             <tr>
               <td><code>/opt/jibo/Skills/</code></td>
@@ -102,11 +102,22 @@
       </div>
 
       <p>
-        The most important skill is <strong><code>@be/be</code></strong> — the Be skill.
+        The most important skill is <strong><code>@be/be</code></strong> — the Be host skill.
         It's Jibo's main process: his eye, his animated face, his main menu, and the
         container that hosts all other skills. If something goes wrong with Jibo's behaviour,
         restarting Be is the first thing to try.
       </p>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ BEam skill layout</div>
+        <p>
+          Current <a href="/beam-update.html">BEam</a> releases put system packs under
+          <code>/opt/jibo/Jibo/Skills/@be/be/skills/</code> and have the system manager list
+          <code>@be/be</code> as the launchable host. Older stock/community images may use a
+          different layout, so inspect <code>/opt/jibo/Jibo/Skills/</code> before copying a
+          package or changing a path.
+        </p>
+      </div>
 
       <hr>
 

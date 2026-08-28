@@ -91,10 +91,11 @@
 
       <p>
         Flash the modified <code>var_partition.bin</code> back to Jibo at the correct offset.
-        Use <em>your</em> hex start address:
+        Use <em>your</em> hex start address from the GPT, not the illustrative value unless
+        it matches your dump:
       </p>
 
-      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/ShofEL2-for-T124
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/JiboAutoMod/Shofel
 <span class="prompt">$ </span>sudo ./shofel2_t124 EMMC_WRITE 0x7E9022 var_partition.bin</code></pre>
 
       <p>
@@ -176,8 +177,9 @@ d41f3c29a8b1e7f0cc24... verify_var.bin</code></pre>
       <hr>
 
       <p>
-        Head to <a href="/post-mod.html">SSH &amp; Next Steps</a> to install the JiboOS
-        community update and learn what you can do with your revived Jibo.
+        Head to <a href="/post-mod.html">SSH &amp; Next Steps</a> to install compatible
+        community software such as <a href="/beam-update.html">BEam</a>, or to connect
+        the robot to <a href="/openjibo-host.html">OpenJibo</a>.
       </p>
 
       <div class="page-nav"></div>

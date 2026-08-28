@@ -48,8 +48,8 @@
         Jibo's higher-level voice pipeline runs through a service called
         <strong>Jetstream</strong>, which connects to a <strong>Pegasus hub</strong> — the
         WebSocket server that originally mediated skill launches, conversation turns, and
-        cloud notifications. By editing one config file on the robot you can point Jetstream
-        at a locally-hosted Pegasus replacement instead.
+        cloud notifications. This page documents the legacy direct
+        <code>HubClient.override</code> path for a local Pegasus-compatible hub.
       </p>
 
       <div class="callout info">
@@ -63,11 +63,24 @@
         </p>
       </div>
 
+      <div class="callout warn">
+        <div class="callout-title">⚠️ OpenJibo uses a different current path</div>
+        <p>
+          A direct override is not the same as the current OpenJibo conversion. OpenJibo's
+          preferred device configuration is region-driven: it adds a region under
+          <code>HubClient.region-settings</code>, sets the notification socket suffix, and
+          may require image-specific TLS/native compatibility changes. See the
+          <a href="/openjibo-host.html">OpenJibo hosting page</a> and its
+          <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/blob/main/OpenJibo/docs/device-bootstrap.md" target="_blank">device-bootstrap documentation</a>
+          before applying those changes.
+        </p>
+      </div>
+
       <hr>
 
       <h2>The File</h2>
 
-      <p>Everything is controlled by a single file on the robot:</p>
+      <p>The legacy override is stored in this Jetstream configuration file:</p>
 
       <pre><code>/usr/local/etc/jibo-jetstream-service.json</code></pre>
 

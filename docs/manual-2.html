@@ -48,8 +48,9 @@
 
       <p>
         With Jibo in RCM mode and ShofEL2 built, you'll now dump the eMMC storage,
-        extract the <code>/var</code> partition, and change a single file to unlock
-        developer mode.
+        extract the <code>/var</code> partition, and change the software mode setting
+        that enables developer access. This does not change the Tegra's physical
+        fuse state.
       </p>
 
       <div class="callout warn">
@@ -70,24 +71,26 @@
         file. This takes <strong>2–4 hours</strong> and produces a file of approximately 15 GB.
       </p>
 
-      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/ShofEL2-for-T124
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/JiboAutoMod/Shofel
 <span class="prompt">$ </span>sudo ./shofel2_t124 EMMC_READ 0x0 0x1D60000 full_jibo_dump.bin</code></pre>
 
       <div class="callout info">
         <div class="callout-title">ℹ️ If it crashes at 98–99%</div>
         <p>
-          This is common. The last partition on the eMMC is nearly empty space.
-          As long as the dump got past the 90% mark, the important partitions are captured
-          and you can continue. You can repair a truncated image later if needed.
+          A read that stops near the end is not a complete backup, regardless of the
+          percentage shown. Check that the GPT and the complete partition 5 are readable;
+          otherwise re-enter RCM and re-run the read. If you only need developer mode,
+          use AutoMod's <code>--mode-json-only</code> fast path instead. Never label a
+          truncated image as a restorable full-eMMC backup.
         </p>
       </div>
 
       <div class="callout note">
         <div class="callout-title">✅ Keep your backup</div>
         <p>
-          Once complete, copy <code>full_jibo_dump.bin</code> to external storage or another
-          machine. This file contains your Jibo's unique calibration data — it cannot be
-          recovered from another Jibo.
+          Once the requested read completes, copy <code>full_jibo_dump.bin</code> to external
+          storage or another machine. This file contains your Jibo's unique calibration data
+          — it cannot be recovered from another Jibo. A partial read is not a substitute.
         </p>
       </div>
 
@@ -115,7 +118,9 @@ full_jibo_dump.bin4    4198434  8294433  4096000     2G Microsoft basic data
 full_jibo_dump.bin5    8294434  9318433  1024000  500M  ← This is /var
 full_jibo_dump.bin6    9318434 30777310 21458877  10.2G Microsoft basic data</code></pre>
 
-      <p>Note down the <strong>Start</strong> and <strong>End</strong> sectors for partition 5:</p>
+      <p>Note down the <strong>Start</strong> and <strong>End</strong> sectors for partition 5.
+        The values below are only an illustration; never use them if your GPT reports
+        different values.</p>
 
       <div class="callout info">
         <div class="callout-title">ℹ️ Example values (yours may differ slightly)</div>
@@ -179,10 +184,11 @@ full_jibo_dump.bin6    9318434 30777310 21458877  10.2G Microsoft basic data</co
       <div class="callout info">
         <div class="callout-title">ℹ️ What does <code>int-developer</code> mode do?</div>
         <p>
-          Switching to <code>int-developer</code> mode disables the firewall and enables
-          several additional services, including <strong>SSH on port 22</strong>.
-          It also disables the normal boot animation — instead you'll see a large checkmark,
-          which confirms the mode was applied successfully.
+          Switching to <code>int-developer</code> mode changes the software boot mode,
+          disables the developer-mode firewall rules, and enables additional services,
+          including <strong>SSH on port 22</strong>. It does not alter the hardware fuse
+          or its boot-signing identity. The normal boot animation is replaced by a large
+          checkmark, which confirms the mode was applied successfully.
         </p>
       </div>
 

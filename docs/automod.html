@@ -82,9 +82,11 @@
         <div class="callout info">
           <div class="callout-title">ℹ️ What this does under the hood</div>
           <p>
-            JiboAutoMod performs the exact same steps as the Manual Route — it
-            just handles the partition math, loop-mount, and hex conversion for
-            you. If something goes wrong, the
+            JiboAutoMod performs the same recovery operation as the Manual Route —
+            it handles GPT partition discovery, image editing, and the eMMC write
+            for you. The current repository includes its Jibo-specific ShofEL2
+            source under <code>Shofel/</code>; you do not need to fetch a separate
+            third-party fork. If something goes wrong, the
             <a href="/troubleshooting.html">Troubleshooting</a> page and the
             <a href="/manual-1.html">Manual Route</a> explain every step in
             detail.
@@ -122,13 +124,15 @@
 
         <ul>
           <li>
-            A <strong>Linux</strong> machine (recommended) — any distro with
-            <code>apt</code>, <code>pacman</code>, or <code>dnf</code>. Windows
-            via MSYS2 also works — see Windows notes below.
+            A <strong>Linux</strong> machine (recommended), macOS machine, or
+            Windows machine. Linux is the simplest path; macOS uses Homebrew,
+            and Windows uses MSYS2 plus a WinUSB driver. See the platform notes
+            below.
           </li>
           <li>
-            At least <strong>32 GB of free disk space</strong> (for the eMMC
-            dump; fast mode uses ~500 MB)
+            About <strong>20 GB free</strong> for a full eMMC dump (more is useful
+            when keeping a second copy); the fast <code>--mode-json-only</code>
+            path needs roughly <strong>1 GB or more</strong>
           </li>
           <li>
             A <strong>micro-USB data cable</strong> — must be a data cable, not
@@ -140,7 +144,8 @@
           </li>
           <li>
             <strong>Python 3.8+</strong>, <code>git</code>, <code>gcc</code>,
-            <code>make</code>, and <code>libusb</code> dev headers
+            <code>make</code>, <code>libusb</code> development headers, and the
+            <code>arm-none-eabi</code> cross-compiler used to build the payloads
           </li>
           <li>
             About <strong>1–4 hours</strong> depending on whether you do a full
@@ -185,24 +190,34 @@
 
         <h2>Step 2 — Install Dependencies</h2>
 
-        <p>Pick the command for your OS:</p>
+        <p>Pick the command for your OS. The ARM toolchain is required even though the host tool runs on your computer:</p>
 
         <p><strong>Arch / CachyOS / Manjaro:</strong></p>
         <pre
           class="shell-block"
-        ><code><span class="prompt">$ </span>sudo pacman -S --needed base-devel libusb git python python-pip</code></pre>
+        ><code><span class="prompt">$ </span>sudo pacman -S --needed base-devel libusb git python python-pip arm-none-eabi-gcc arm-none-eabi-newlib</code></pre>
 
         <p><strong>Ubuntu / Debian / Raspberry Pi OS:</strong></p>
         <pre
           class="shell-block"
         ><code><span class="prompt">$ </span>sudo apt update
-<span class="prompt">$ </span>sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip</code></pre>
+<span class="prompt">$ </span>sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip gcc-arm-none-eabi libnewlib-arm-none-eabi</code></pre>
 
         <p><strong>Fedora:</strong></p>
         <pre
           class="shell-block"
         ><code><span class="prompt">$ </span>sudo dnf groupinstall "Development Tools"
-<span class="prompt">$ </span>sudo dnf install libusb1-devel python3-pip</code></pre>
+<span class="prompt">$ </span>sudo dnf install libusb1-devel python3-pip
+<span class="comment"># Install your distro's arm-none-eabi-gcc/newlib packages if available.</span></code></pre>
+
+        <p><strong>macOS (Homebrew):</strong></p>
+        <pre class="shell-block"><code><span class="prompt">$ </span>xcode-select --install
+<span class="prompt">$ </span>brew install libusb pkgconf arm-none-eabi-gcc e2fsprogs</code></pre>
+        <p>
+          The launcher adds Homebrew's <code>debugfs</code> path automatically. If
+          you run the Python entry point directly, follow the current
+          <a href="https://github.com/Jibo-Revival-Group/JiboAutoMod#macos" target="_blank">AutoMod macOS notes</a>.
+        </p>
 
         <h2>Step 3 — Put Jibo in RCM Mode</h2>
 
@@ -282,18 +297,18 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</code></pre>
         <h3>CLI Mode — Default (Full Mod)</h3>
         <p>
           Just press Enter to use the full workflow, which dumps the entire eMMC
-          (~15 GB, takes 2–4 hours):
+          (about 15 GB, usually 2–4 hours) and keeps a robot-specific backup:
         </p>
         <pre
           class="shell-block"
         ><code><span class="prompt">$ </span>python3 jibo_automod.py</code></pre>
 
-        <h3>CLI Mode — Fast (Recommended if disk space is tight)</h3>
+        <h3>CLI Mode — Fast (Recommended for a mode-only recovery)</h3>
         <p>
           Fast mode reads only the GPT header and the
           <code>/var</code> partition (~500 MB), patches <code>mode.json</code>,
-          and writes back only the changed sectors. Much faster but skips the
-          full system backup:
+          and writes back only the changed sectors. It is much faster, but it
+          does not create a complete system backup:
         </p>
         <pre
           class="shell-block"
@@ -303,9 +318,11 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</code></pre>
           <div class="callout-title">⚠️ Back up your Jibo</div>
           <p>
             The eMMC contains your Jibo's <strong>calibration data</strong> —
-            unique to your unit. If you have the disk space, run the full dump
-            at least once and keep
-            <code>jibo_work/var_partition_backup.bin</code> somewhere safe.
+            unique to your unit. If you have the disk space, use
+            <code>--dump-only</code> at least once and keep the resulting full
+            image somewhere safe. Both modes also create a local
+            <code>jibo_work/var_partition_backup.bin</code> for the changed
+            partition; the fast path is not a full backup.
           </p>
         </div>
 
@@ -313,8 +330,9 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</code></pre>
 
         <p>
           The tool will print progress as it works. When it's done, you'll see a
-          summary and (optionally) an MD5 hash verification confirming the write
-          succeeded.
+          summary and a read-back hash verification confirming whether the write
+          succeeded. Treat a verification failure as unresolved until you have
+          checked the cable, RCM state, and target partition.
         </p>
 
         <p>
@@ -341,8 +359,24 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</code></pre>
 
         <p>
           Head to <a href="/post-mod.html">SSH &amp; Next Steps</a> to learn
-          what to do now, including installing the JiboOS community update.
+          what to do now. Installing community software such as
+          <a href="/beam-update.html">BEam</a> or a compatible JiboOS release,
+          and connecting to <a href="/openjibo-host.html">OpenJibo</a>, are
+          separate post-recovery steps.
         </p>
+
+        <div class="callout info">
+          <div class="callout-title">ℹ️ What AutoMod changes — and what it does not</div>
+          <p>
+            AutoMod writes the software setting <code>/var/jibo/mode.json</code> to
+            <code>int-developer</code>. It does <strong>not</strong> burn, erase, or
+            convert the Tegra hardware fuse. The fuse controls which boot/signing
+            identity a fused robot accepts; it is not a cloud-hostname lock. Once
+            you have a writable software path, server retargeting is a separate
+            configuration task described in the <a href="/oobe.html">OOBE and
+            server-targeting notes</a>.
+          </p>
+        </div>
 
         <hr />
 

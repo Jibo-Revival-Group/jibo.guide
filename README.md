@@ -7,7 +7,7 @@ Live at **[jibo.guide](https://jibo.guide)**
 
 ## About
 
-Jibo was the world's first social robot. When the original company shut down its servers in 2019, thousands of units went silent. This guide documents the community's work to restore them using a known hardware exploit (RCM mode on the NVIDIA Tegra K1 chipset) to unlock SSH access and install the community **JiboOS** update.
+Jibo was the world's first social robot. When the original company shut down its servers in 2019, thousands of units went silent. This guide documents the community's work to restore them using the Tegra K1 boot-ROM recovery path (RCM/ShofEL2) to obtain SSH access, install community software, and connect to replacement services.
 
 This is a project of the [Jibo Revival Group](https://github.com/Jibo-Revival-Group). We are not affiliated with Jibo Inc.
 
@@ -17,8 +17,10 @@ This is a project of the [Jibo Revival Group](https://github.com/Jibo-Revival-Gr
 |------|-------------|
 | Welcome | What this is, FAQ, choose your route |
 | Route A — Automated | Use `jibo_automod` to mod your Jibo automatically |
-| Route B — Manual (3 steps) | Build ShofEL2, dump eMMC, modify `/var`, flash back |
-| SSH & Next Steps | Install JiboOS, useful ports, local voice round-trip |
+| Route B — Manual (3 steps) | Build the Jibo-specific ShofEL2 payload, dump eMMC, modify `/var`, flash back |
+| SSH & Next Steps | Community software, useful ports, local voice round-trip |
+| OpenJibo Cloud | Run the replacement cloud locally or use the managed path |
+| BEam / BEaker | Current system skills and classic OTA server status |
 | Troubleshooting | Common failure modes and fixes |
 
 ## Running Locally

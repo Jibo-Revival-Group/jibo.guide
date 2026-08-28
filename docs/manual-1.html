@@ -68,10 +68,12 @@
       <div class="callout warn">
         <div class="callout-title">⚠️ About ShofEL2</div>
         <p>
-          This guide uses a specific fork of ShofEL2 —
-          <strong>devsparx's improvements branch</strong>. Do not use other forks.
-          If the repo changes, the Discord <strong>#modding</strong> channel will have
-          updated links.
+          The maintained community workflow is the Jibo-specific ShofEL2 source
+          bundled in the current
+          <a href="https://github.com/Jibo-Revival-Group/JiboAutoMod" target="_blank">JiboAutoMod</a>
+          repository. The standalone T124 repository has an older, generic README;
+          do not substitute an arbitrary ShofEL2 fork or payload. Route A is
+          recommended if you do not specifically need to inspect each manual step.
         </p>
       </div>
 
@@ -81,13 +83,14 @@
 
       <ul>
         <li>A Linux machine (spare laptop, Raspberry Pi, desktop PC — anything with at least
-            <strong>32 GB free storage</strong>). CachyOS, Arch, Ubuntu, Debian all work.
-            This guide uses CachyOS with a 6.x kernel, but you don't need to replicate that.</li>
+            <strong>20 GB free storage</strong> for a full dump; more is useful for a second
+            backup). CachyOS, Arch, Ubuntu, and Debian are commonly used. The manual commands
+            below are written for Linux; current AutoMod also supports macOS and Windows.</li>
         <li>A <strong>micro-USB cable that you know is a data cable</strong> (not charge-only —
             many phone charger cables are charge-only and will not work)</li>
         <li>Your <strong>Jibo's IP address</strong> — look this up <em>before</em> you start
             and write it down somewhere</li>
-        <li>About <strong>4–5 hours</strong> of patience</li>
+        <li>About <strong>2–4 hours</strong> for a full eMMC read, plus time for setup</li>
         <li>Basic familiarity with the Linux terminal</li>
       </ul>
 
@@ -102,7 +105,7 @@
 
       <hr>
 
-      <h2>Part 1 — Connect Jibo via USB (RCM Mode)</h2>
+      <h2 id="rcm">Part 1 — Connect Jibo via USB (RCM Mode)</h2>
 
       <p>
         Jibo's NVIDIA Tegra K1 chipset has a Recovery Mode (RCM) that allows direct USB
@@ -139,9 +142,9 @@
           <pre class="shell-block"><code><span class="prompt">$ </span>lsusb</code></pre>
           You should see a line like this:
           <pre><code>Bus 001 Device 007: ID 0955:7740 NVIDIA Corp. APX</code></pre>
-          The important part is <code>0955:7740</code>. If you see <code>0955:9134</code>
-          instead, that's an alternative PID that some units show briefly — try unplugging
-          and re-entering RCM.
+          The important part is <code>0955:7740</code>. If a different NVIDIA/APX identifier
+          appears, stop before writing and use the current AutoMod detection guidance or
+          ask in Discord rather than guessing at a compatible payload.
         </li>
       </ol>
 
@@ -162,50 +165,61 @@
       <p>Install the build tools and libraries ShofEL2 requires:</p>
 
       <p><strong>Arch / CachyOS / Manjaro:</strong></p>
-      <pre class="shell-block"><code><span class="prompt">$ </span>sudo pacman -S --needed base-devel libusb git python python-pip</code></pre>
+      <pre class="shell-block"><code><span class="prompt">$ </span>sudo pacman -S --needed base-devel libusb git python python-pip \
+    arm-none-eabi-gcc arm-none-eabi-newlib</code></pre>
 
       <p><strong>Ubuntu / Debian / Raspberry Pi OS:</strong></p>
       <pre class="shell-block"><code><span class="prompt">$ </span>sudo apt update
-<span class="prompt">$ </span>sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip</code></pre>
+<span class="prompt">$ </span>sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip \
+    gcc-arm-none-eabi libnewlib-arm-none-eabi</code></pre>
 
       <p><strong>Fedora:</strong></p>
       <pre class="shell-block"><code><span class="prompt">$ </span>sudo dnf groupinstall "Development Tools"
-<span class="prompt">$ </span>sudo dnf install libusb1-devel python3-pip</code></pre>
+<span class="prompt">$ </span>sudo dnf install libusb1-devel python3-pip
+<span class="comment"># Also install your distro's arm-none-eabi-gcc and arm-none-eabi-newlib packages.</span></code></pre>
+
+      <p><strong>macOS:</strong> the automated launcher is the supported macOS path. Install
+        Xcode Command Line Tools and the Homebrew dependencies, then use Route A:</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>xcode-select --install
+<span class="prompt">$ </span>brew install libusb pkgconf arm-none-eabi-gcc e2fsprogs</code></pre>
 
       <hr>
 
       <h2>Part 3 — Clone and Build ShofEL2</h2>
 
       <p>
-        We use a Jibo-specific fork of ShofEL2 (the Fusée Gelée exploit adapted for the
-        Tegra K1 / T124). Clone it from devsparx's <code>improvements/IncreasedUSBReadWriteSpeed</code>
-        branch:
+        We use the Jibo-specific T124 build of ShofEL2 (the Fusée Gelée exploit adapted for
+        the Tegra K1). The current JiboAutoMod repository carries the source and payloads
+        it actually builds, so compile that copy instead of relying on the obsolete
+        third-party branch referenced by earlier versions of this guide:
       </p>
 
       <pre class="shell-block"><code><span class="prompt">$ </span>cd ~
-<span class="prompt">$ </span>git clone -b improvements/IncreasedUSBReadWriteSpeed \
-    https://github.com/devsparx/ShofEL2-for-T124.git
-<span class="prompt">$ </span>cd ShofEL2-for-T124/
-<span class="prompt">$ </span>make</code></pre>
+<span class="prompt">$ </span>git clone https://github.com/Jibo-Revival-Group/JiboAutoMod.git
+<span class="prompt">$ </span>cd JiboAutoMod
+<span class="prompt">$ </span>make -C Shofel</code></pre>
 
       <div class="callout info">
         <div class="callout-title">ℹ️ "Error code 1" from make</div>
         <p>
           If <code>make</code> exits with error code 1, don't panic. Check whether a
-          <code>shofel2_t124</code> executable was created in the directory:
+          <code>shofel2_t124</code> executable was created in <code>Shofel/</code>:
         </p>
-        <pre><code><span class="prompt">$ </span>ls -la shofel2_t124</code></pre>
+        <pre><code><span class="prompt">$ </span>ls -la Shofel/shofel2_t124</code></pre>
         <p>If the file exists, the build succeeded. The error is a known quirk of the
         Makefile's exit handling.</p>
       </div>
 
       <p>Verify the build:</p>
-      <pre class="shell-block"><code><span class="prompt">$ </span>./shofel2_t124 --help</code></pre>
+      <pre class="shell-block"><code><span class="prompt">$ </span>./Shofel/shofel2_t124 --help</code></pre>
 
       <hr>
 
       <p>
-        Your environment is ready. Continue to the next step to dump Jibo's eMMC.
+        Your environment is ready. In the next step, use
+        <code>~/JiboAutoMod/Shofel/shofel2_t124</code> for the ShofEL2 executable
+        (or set <code>SHOFEL_DIR</code> to that directory in your shell).
+        Continue to dump Jibo's eMMC.
       </p>
 
       <div class="page-nav"></div>

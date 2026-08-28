@@ -46,17 +46,26 @@
 
       <h2 id="oj-1">1. Add OpenJibo to Home Assistant</h2>
 
-      <p>(Soon to be added to default repo) Add it via the HACS store.</p>
+      <p>
+        Install <a href="https://github.com/Jibo-Revival-Group/openjibo-haint" target="_blank">openjibo-haint</a>
+        through HACS. If it is not listed in your HACS catalog, add the GitHub repository
+        as a custom repository of type <strong>Integration</strong>, then install OpenJibo
+        and restart Home Assistant.
+      </p>
 
       <h2 id="oj-2">2. Configure the integration</h2>
 
       <ol>
         <li>Go to your Devices menu and click "Add Integration"</li>
         <li>Select/Search OpenJibo in the new menu</li>
-        <li>Enter the URL of your OpenJibo Server (e.g. https://api.5x1.com:80)</li>
+        <li>
+          Enter the base URL of your OpenJibo Server. For the local .NET server from this
+          guide, use <code>http://&lt;server-ip&gt;:24605</code>; for a hosted server, use
+          the URL it provides. Do not use <code>https://...:80</code>.
+        </li>
         <li>Set an Integration Name for your Jibo (it doesn't matter what you pick)</li>
         <li>Enter the IP of your Robot (optional, requires HA to be on the same network as Jibo)</li>
-        <li>Go to the OpenJibo portal (SERVER_URL/portal)</li>
+        <li>Go to the OpenJibo portal (<code>SERVER_URL/portal</code>)</li>
         <li>On the portal, sign in via the code given by your Jibo</li>
         <li>Go to your Home Assistant Notifications and copy your pairing code</li>
         <li>Paste your pairing code into the OpenJibo portal</li>
@@ -74,7 +83,7 @@
     </footer>
   </div>
 
-  <script>const PAGE_ID = 'openjibo-host';</script>
+  <script>const PAGE_ID = 'haint';</script>
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
 </body>

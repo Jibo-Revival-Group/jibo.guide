@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>jibo.guide — Jibo Revival Guide</title>
 
-  <meta name="description" content="Restore your Jibo social robot. Community guide covering automated and manual routes to unlock SSH access and install JiboOS.">
+  <meta name="description" content="Restore your Jibo social robot. Community guide covering eMMC recovery, SSH access, community software, and OpenJibo cloud options.">
   <meta property="og:site_name" content="jibo.guide">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://jibo.guide/">
   <meta property="og:title" content="jibo.guide — Community Jibo Revival Guide">
-  <meta property="og:description" content="Restore your Jibo social robot. Community guide covering automated and manual routes to unlock SSH access and install JiboOS.">
+  <meta property="og:description" content="Restore your Jibo social robot. Community guide covering eMMC recovery, SSH access, community software, and OpenJibo cloud options.">
   <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="jibo.guide — Community Jibo Revival Guide">
-  <meta name="twitter:description" content="Restore your Jibo social robot. Community guide covering automated and manual routes to unlock SSH access and install JiboOS.">
+  <meta name="twitter:description" content="Restore your Jibo social robot. Community guide covering eMMC recovery, SSH access, community software, and OpenJibo cloud options.">
   <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -64,8 +64,9 @@
         <p>
           Jibo was the world's first social robot. When the original company shut down its
           servers in 2019, thousands of Jibos performed a final goodbye dance and went silent.
-          The <strong>Jibo Revival Group (JRG)</strong> is bringing them back by taking advantage
-          of a known flaw in the hardware we own — we are not hacking anyone else's system.
+          The <strong>Jibo Revival Group (JRG)</strong> is bringing them back through a
+          Tegra K1 boot-ROM recovery vulnerability on hardware we own — we are not hacking
+          anyone else's system.
         </p>
       </div>
 
@@ -86,7 +87,8 @@
       <h2 id="choose-route">Choose Your Route</h2>
       <p>
         There are currently two ways to modify your Jibo. Both end up in the same place —
-        SSH access and the ability to install <strong>JiboOS</strong>.
+        SSH access and the ability to install community software such as
+        <strong>JiboOS releases</strong> or <strong>BEam</strong>.
       </p>
 
       <div class="route-grid">
@@ -95,8 +97,9 @@
           <h3>Route A — Automated Installer</h3>
           <p>
             Use the community-built <code>jibo_automod</code> tool to handle the eMMC
-            dump, modification, and flash automatically. Works on Linux and Windows.
-            Requires basic comfort with a terminal.
+            dump, modification, and flash automatically. The current tool supports
+            Linux, macOS, and Windows; Linux remains the simplest path. Requires basic
+            comfort with a terminal.
           </p>
           <span class="route-cta">Start Route A →</span>
         </a>
@@ -116,9 +119,11 @@
       <div class="callout warn">
         <div class="callout-title">⚠️ Heads up</div>
         <p>
-          A simpler "one-click" installer is planned for the future. Until then, both
-          routes require some technical knowledge. If you get stuck, join the
-          <a href="https://discord.gg/A34eFkKVFG">Discord</a> — the community is friendly and helpful.
+          The automated route now includes a fast GPT + <code>/var</code> path as well as
+          a full eMMC dump. Both routes still perform low-level writes, so keep a
+          robot-specific backup when possible. If you get stuck, join the
+          <a href="https://discord.gg/A34eFkKVFG">Discord</a> — the community keeps
+          current tool guidance there.
         </p>
       </div>
 
@@ -127,11 +132,29 @@
       <h2>What You'll Be Able to Do</h2>
       <ul>
         <li>SSH into your Jibo as <code>root</code></li>
-        <li>Install the community <strong>JiboOS</strong> update (restores functionality)</li>
+        <li>Install community software such as <strong>JiboOS releases</strong> or <strong>BEam</strong></li>
         <li>Access Jibo's local ASR (speech-to-text) and TTS (text-to-speech) services</li>
         <li>Build and run custom skills and integrations</li>
-        <li>Eventually: Home Assistant integration, custom AI brain, and more</li>
+        <li>Use current community tools including <a href="/re-commander.html">Re-Commander</a>,
+          <a href="/jibo-llm.html">jibo-llm</a>, and the <a href="/haint.html">Home Assistant integration</a></li>
+        <li>Connect to the <a href="/openjibo-host.html">OpenJibo replacement cloud</a> or run it locally</li>
       </ul>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Terminology and source notes</div>
+        <p>
+          A Jibo's Tegra fuse state governs its boot/signing identity; it does not make a
+          cloud hostname physically immutable. The archived
+          <a href="https://pvindex.org/confluence/display/ENG/Fused+vs.+Un-fused+robots" target="_blank">pvindex fuse documentation</a>
+          distinguishes unfused, developer-fused, and production-fused units. The current
+          recovery and replacement-service status is tracked in the community's
+          <a href="https://github.com/Jibo-Revival-Group/JiboAutoMod" target="_blank">AutoMod</a>,
+          <a href="https://github.com/Jibo-Revival-Group/JiboExperiments" target="_blank">OpenJibo</a>,
+          <a href="https://github.com/Jibo-Revival-Group/BEam" target="_blank">BEam</a>, and
+          <a href="https://github.com/Jibo-Revival-Group/BEaker" target="_blank">BEaker</a>
+          repositories.
+        </p>
+      </div>
 
       <hr>
 
@@ -153,11 +176,12 @@
           <summary>Is this safe? Could I brick my Jibo?</summary>
           <div class="faq-body">
             <p>
-              The modification changes a single file (<code>mode.json</code>) on the
-              <code>/var</code> partition. The rest of Jibo's OS is untouched. We strongly
-              recommend keeping a backup of your <code>var_partition_backup.bin</code> — if
-              anything goes wrong, you can flash the original back. A full eMMC dump (Route B)
-              gives you a complete system backup as well.
+              The initial AutoMod recovery path changes <code>mode.json</code> on the
+              <code>/var</code> partition and writes that partition back. It does not alter
+              the Tegra fuse state or make unsigned boot images valid. We strongly recommend
+              keeping the generated <code>var_partition_backup.bin</code>; a full eMMC dump
+              (Route B or AutoMod <code>--dump-only</code>) also preserves unit-specific
+              calibration data for recovery.
             </p>
           </div>
         </details>
@@ -166,10 +190,11 @@
           <summary>Is Jibo fully back to normal?</summary>
           <div class="faq-body">
             <p>
-              Not quite yet — we are still in the restoration phase. The JiboOS community
-              update restores significant functionality (wake word, animations, local voice
-              round-trip), but it is an ongoing project. Check the Discord for the latest
-              update releases.
+              The original Jibo cloud is still gone, so there is no single drop-in
+              replacement for every original feature. The community now has working local
+              services, BEam skills, OpenJibo cloud work, Home Assistant, and browser/LLM
+              tools, but compatibility depends on the robot image and the path you choose.
+              Check the linked project repositories and Discord for release-specific status.
             </p>
           </div>
         </details>
@@ -201,9 +226,10 @@
           <summary>What OS do I need on my computer?</summary>
           <div class="faq-body">
             <p>
-              <strong>Linux is strongly preferred</strong> (any distro with <code>libusb</code>).
-              Windows is supported via WSL2 or the native <code>.bat</code> launchers
-              (requires Zadig + MSYS2). macOS is not currently supported.
+              <strong>Linux is simplest</strong> (any distro with <code>libusb</code>).
+              The current AutoMod launcher also supports macOS with Homebrew and Windows
+              with MSYS2/Zadig. WSL2 remains an option, but USB passthrough needs additional
+              setup.
             </p>
           </div>
         </details>

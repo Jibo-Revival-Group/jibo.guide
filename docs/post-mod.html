@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SSH &amp; Next Steps · jibo.guide</title>
 
-  <meta name="description" content="Install JiboOS, explore useful ports and services, and set up local voice round-trip on your revived Jibo.">
+  <meta name="description" content="Explore community software, useful ports and services, and local voice round-trip on your revived Jibo.">
   <meta property="og:site_name" content="jibo.guide">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://jibo.guide/post-mod.html">
   <meta property="og:title" content="SSH & Next Steps — jibo.guide">
-  <meta property="og:description" content="Install JiboOS, explore useful ports and services, and set up local voice round-trip on your revived Jibo.">
+  <meta property="og:description" content="Explore community software, useful ports and services, and local voice round-trip on your revived Jibo.">
   <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="SSH & Next Steps — jibo.guide">
-  <meta name="twitter:description" content="Install JiboOS, explore useful ports and services, and set up local voice round-trip on your revived Jibo.">
+  <meta name="twitter:description" content="Explore community software, useful ports and services, and local voice round-trip on your revived Jibo.">
   <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -46,7 +46,8 @@
 
       <p>
         Congratulations — Jibo is in developer mode and you have SSH access. This page
-        covers useful ports and tools, and what to explore next.
+        covers useful ports and tools, local voice services, and the current community
+        software paths to explore next.
       </p>
 
       <div class="callout note">
@@ -83,7 +84,7 @@
           <tr>
             <td><code>8779</code></td>
             <td>Skills Manager</td>
-            <td>Start/stop skills (including a soft reboot via <code>@be/Be</code>)</td>
+            <td>Start/stop skills (including a soft reboot via <code>@be/be</code>)</td>
           </tr>
           <tr>
             <td><code>8088</code></td>
@@ -98,7 +99,7 @@
           <tr>
             <td><code>15150</code></td>
             <td>Log Service</td>
-            <td>Available in JiboOS v3+. Check Settings → Info for your version.</td>
+            <td>Availability depends on the installed base image/community release.</td>
           </tr>
           <tr>
             <td><code>10004</code></td>
@@ -119,12 +120,12 @@
       <h2>Local Voice Round-Trip</h2>
 
       <p>
-        One of the most exciting discoveries: Jibo's entire voice pipeline still works
-        locally, without any cloud connection.
+        Jibo's core voice interfaces can work locally, without a cloud connection, when
+        the corresponding services are enabled and running.
       </p>
 
       <ul>
-        <li><strong>Wake word</strong> ("Hey Jibo") detection works locally</li>
+        <li><strong>Wake word</strong> ("Hey Jibo") detection can be handled locally by Be/ASR</li>
         <li><strong>Speech-to-text</strong> (ASR) runs on port 8088</li>
         <li><strong>Text-to-speech</strong> (TTS) runs on port 8089</li>
       </ul>
@@ -182,8 +183,8 @@
             <td>Splash screen shown at Be skill startup — replace to customize</td>
           </tr>
           <tr>
-            <td><code>/opt/jibo/Jibo/Skills/@be/be/node_modules/jibo-anim-db-animations/audio/</code></td>
-            <td>Audio assets directory</td>
+            <td><code>/opt/jibo/Jibo/Skills/@be/be/skills/</code></td>
+            <td>BEam system skill packs; the layout differs from older node_modules-based images</td>
           </tr>
           <tr>
             <td><code>/usr/local/bin/</code></td>
@@ -244,13 +245,16 @@
 
       <h2>What's Next</h2>
 
-      <p>The community is actively working on:</p>
+      <p>The current community stack includes working pieces and active work:</p>
       <ul>
-        <li>A complete AI "brain" integration (local LLM or cloud AI via the voice round-trip loop)</li>
-        <li>Home Assistant integration to use Jibo as a smart home controller</li>
-        <li>A new Jibo SDK for building custom skills</li>
-        <li>A custom phone app to replace the original Jibo app</li>
-        <li>Jibo as a webcam/camera for your PC</li>
+        <li><a href="/jibo-llm.html">jibo-llm</a> and <a href="/re-commander.html">Re-Commander</a>
+          provide local LLM/control experiments through Jibo's LAN interfaces.</li>
+        <li><a href="/haint.html">Home Assistant</a> integration is available when Jibo is
+          pointed at an OpenJibo server.</li>
+        <li><a href="/beam-update.html">BEam</a> provides current community system skills,
+          including the BEacon panel on port <code>8123</code>.</li>
+        <li><a href="/openjibo-host.html">OpenJibo</a> is rebuilding the hosted and local
+          cloud path; OTA-assisted recovery and broader OS conversion remain active work.</li>
       </ul>
 
       <p>

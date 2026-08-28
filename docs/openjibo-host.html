@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Host an OpenJibo Server · jibo.guide</title>
+  <title>OpenJibo Replacement Cloud · jibo.guide</title>
 
-  <meta name="description" content="How to host your own OpenJibo server instance.">
+  <meta name="description" content="Run the current OpenJibo replacement cloud locally or prepare a physical-device endpoint.">
   <meta property="og:site_name" content="jibo.guide">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://jibo.guide/openjibo-host.html">
-  <meta property="og:title" content="Host an OpenJibo Server — jibo.guide">
-  <meta property="og:description" content="How to host your own OpenJibo server instance.">
+  <meta property="og:title" content="OpenJibo Replacement Cloud — jibo.guide">
+  <meta property="og:description" content="Run the current OpenJibo replacement cloud locally or prepare a physical-device endpoint.">
   <meta property="og:image" content="https://jibo.guide/assets/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Host an OpenJibo Server — jibo.guide">
-  <meta name="twitter:description" content="How to host your own OpenJibo server instance.">
+  <meta name="twitter:title" content="OpenJibo Replacement Cloud — jibo.guide">
+  <meta name="twitter:description" content="Run the current OpenJibo replacement cloud locally or prepare a physical-device endpoint.">
   <meta name="twitter:image" content="https://jibo.guide/assets/og-image.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -42,42 +42,157 @@
       <em>Proceed only if you understand and accept these risks.</em>
     </div>
     <main>
-      <h1>Hosting OpenJibo Server</h1>
+      <h1>OpenJibo: Replacement Cloud</h1>
 
       <p>
-        OpenJibo is a project that allows you to host your own Jibo server. This allows you to fully restore Jibo to his previous functionality.
+        <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/tree/main/OpenJibo" target="_blank">OpenJibo</a>
+        is the active community replacement-cloud track. It is rebuilding the robot-facing
+        API, notification sockets, and higher-level runtime so a revived Jibo can use a
+        hosted or self-hosted service. It is substantial and usable, but it is not a claim
+        that every original cloud feature is complete.
       </p>
 
       <div class="callout info">
-        <div class="callout-title">ℹ️ You want Linux!!</div>
+        <div class="callout-title">ℹ️ Current managed endpoints</div>
         <p>
-          Linux is the best operating system ever! I highly recommend using Linux to host the OpenJibo Server.
-          It makes the entire process much easier. Overall, Linux is just better than other operating systems.
-          I'll admit, this has just been my personal experience and opinion... but because of this the guide
-          will be specifically for Linux. You can use Windows, but you may encounter issues.
+          The documented managed path uses
+          <code>api.openjibo.com</code> for the robot-facing API,
+          <code>open-jibo-socket.openjibo.com</code> for notification traffic, and
+          <code>neohub.openjibo.com</code> for the NeoHub/listen path. A local server
+          uses your own hostnames or controlled DNS instead.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Hosting is not the same as retargeting</div>
+        <p>
+          Starting a server does not make a stock robot connect to it automatically. The
+          robot still needs a software configuration change, controlled DNS/hosts routing,
+          and TLS that the device accepts. The eMMC recovery in
+          <a href="/automod.html">Route A</a> gives you the write/SSH path; endpoint
+          conversion is a separate, image-specific step. The Tegra fuse remains a
+          boot-signing identity lock, not a cloud-hostname lock.
         </p>
       </div>
 
       <hr>
 
-      <h2 id="oj-1">1. Setting up the server</h2>
+      <h2 id="oj-1">1. Choose a local server mode</h2>
 
-      <p>Recently a tool called EZJiboServer was created to make the process of hosting the OpenJibo Server much easier.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>Use it for</th><th>Default listener</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>.NET local</strong></td>
+              <td>Development and health checks; no privileged port or device certificate required</td>
+              <td><code>https://localhost:24604</code><br><code>http://localhost:24605</code></td>
+            </tr>
+            <tr>
+              <td><strong>.NET live/device</strong></td>
+              <td>Physical Jibo testing through a TLS endpoint on the LAN</td>
+              <td><code>https://&lt;server&gt;:443</code></td>
+            </tr>
+            <tr>
+              <td><strong>Node oracle</strong></td>
+              <td>Legacy protocol capture and reverse-engineering work</td>
+              <td>HTTPS on <code>443</code>; requires <code>cert.pem</code> and <code>key.pem</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <h3>Run Installer Script</h3>
       <p>
-        I encourage using the installer script to download the server. This will automatically download the server and set it (along with it's dependencies) up for you.
+        For a first local test, use the current .NET implementation. The Node server is
+        valuable as a protocol oracle, but it is not the long-term production path.
       </p>
-      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~ && curl -fsSL https://raw.githubusercontent.com/Jibo-Revival-Group/EZJiboServerGit/refs/heads/master/setup.sh | bash</code></pre>
 
       <hr>
 
-      <h2>2. Run the server</h2>
+      <h2>2. Install the local server</h2>
 
       <p>
-        Once the server is downloaded and set up, you can run the server.
+        <a href="https://github.com/Jibo-Revival-Group/EZJiboServerGit" target="_blank">EZJiboServer</a>
+        is the community installer. It installs the required toolchain, clones OpenJibo,
+        creates local configuration and certificates, and leaves <code>run.sh</code> and
+        <code>update.sh</code> in <code>~/EZJiboServer</code>. Inspect downloaded scripts
+        before executing them on your machine:
       </p>
-      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/EZJiboServer && ./run.sh</code></pre>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~
+<span class="prompt">$ </span>curl -fsSL https://raw.githubusercontent.com/Jibo-Revival-Group/EZJiboServerGit/refs/heads/master/setup.sh -o ezjiboserver-setup.sh
+<span class="prompt">$ </span>less ezjiboserver-setup.sh
+<span class="prompt">$ </span>bash ezjiboserver-setup.sh</code></pre>
+
+      <p>
+        The installer is currently documented and tested primarily on Arch Linux and Ubuntu.
+        It may also detect other package managers, but check its output and make sure the
+        required .NET/PowerShell/OpenSSL dependencies are available.
+      </p>
+
+      <hr>
+
+      <h2>3. Run the server locally</h2>
+
+      <p>
+        The local mode is the best way to verify that the server starts before involving a
+        robot. It uses file-backed local persistence and does not need root or port 443:
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/EZJiboServer
+<span class="prompt">$ </span>./run.sh local</code></pre>
+
+      <p>In another terminal, check the HTTP health endpoint:</p>
+      <pre class="shell-block"><code><span class="prompt">$ </span>curl http://localhost:24605/health</code></pre>
+
+      <p>
+        The helper pulls the latest OpenJibo checkout before starting. To test the already
+        installed checkout without pulling, use <code>NO_UPDATE=1 ./run.sh local</code>.
+        Stop it with <code>Ctrl-C</code>.
+      </p>
+
+      <hr>
+
+      <h2>4. Run a physical-device endpoint</h2>
+
+      <p>
+        Live/device mode binds HTTPS on port <code>443</code>, which is the port expected by
+        the stock robot-facing clients. Use certificate material that the robot's routing
+        and trust setup accepts; the generated self-signed certificate is intended for the
+        controlled setup documented by OpenJibo, not arbitrary public deployment:
+      </p>
+
+      <pre class="shell-block"><code><span class="prompt">$ </span>cd ~/EZJiboServer
+<span class="prompt">$ </span>CERT_PEM=/path/to/cert.pem KEY_PEM=/path/to/key.pem ./run.sh live</code></pre>
+
+      <p>
+        Port 443 may require elevated privileges. Do not run live mode while another local
+        server is using that port. For the robot side, follow the current
+        <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/blob/main/OpenJibo/docs/device-bootstrap.md" target="_blank">OpenJibo device-bootstrap notes</a>:
+        they describe region-driven configuration, the notification suffix, native
+        compatibility hostnames, and the image-specific TLS requirements. Keep a full
+        robot-specific eMMC dump before experimental conversion writes.
+      </p>
+
+      <hr>
+
+      <h2>What is supported today?</h2>
+
+      <ul>
+        <li><strong>OpenJibo hosted/local cloud:</strong> active replacement-cloud work with
+          a current .NET implementation and a legacy Node protocol oracle/capture harness.
+          OTA-assisted recovery and broader OS conversion remain active work in the upstream
+          project, not a universal one-click flow.</li>
+        <li><strong>BEaker:</strong> a separate public classic-OTA server for BEam. It serves
+          the update catalog and packages; backup and media endpoints are compatibility no-ops.</li>
+        <li><strong>OOBE-first OTA:</strong> a promising bootstrap candidate under test, not
+          yet a universal replacement for the RCM/SSH recovery path.</li>
+      </ul>
+
+      <p>
+        Read the upstream <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/tree/main/OpenJibo/docs" target="_blank">OpenJibo living documentation</a>
+        before changing endpoint, region, native-library, or TLS files on a robot.
+      </p>
       
       <div class="page-nav"></div>
     </main>

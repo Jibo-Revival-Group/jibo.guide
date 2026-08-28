@@ -53,10 +53,10 @@
 
       <p>
         Understanding OOBE matters for one blunt reason: <strong>a stock, un-modded Jibo can
-        never finish it again.</strong> The cloud it tries to reach was shut down in 2019, so
-        the setup gets stuck partway through — forever. This page explains exactly what the
-        robot is trying to do, where it gets stuck, and why the mod in this guide is the way
-        around it.
+        no longer finish it against the original service.</strong> The production cloud it
+        tries to reach was shut down in 2019, so setup stops partway through. This page
+        explains what the robot is trying to do, where it gets stuck, and how the current
+        recovery and replacement-cloud paths differ.
       </p>
 
       <div class="callout info">
@@ -177,9 +177,30 @@
       <div class="callout note">
         <div class="callout-title">🔒 One more catch: fusing</div>
         <p>
-          You can't simply re-aim a retail Jibo at a different server. Production units are
-          hardware-"fused" to the production cloud, so even pointing them elsewhere is blocked.
-          Getting around that is exactly what the mod does.
+          The Tegra fuse is not a lock to a cloud hostname. It locks the boot/signing identity
+          of a fused robot. Every unit has the fuse circuitry, but a particular robot may be
+          <strong>unfused</strong>, <strong>developer-fused</strong>, or
+          <strong>production-fused</strong>; the archived engineering documentation describes
+          the fuse as a physical one-way change to the signing identity.
+        </p>
+        <p>
+          The old supported stack-switch workflow was restricted for production-fused units,
+          which is the source of much of the earlier wording. ShofEL2 is a different layer: it
+          gives the owner a raw eMMC/NAND read-write path, so software configuration such as
+          the server target can be changed without changing the physical fuse. This bypasses
+          the normal OS/OOBE access path, not the Tegra's cryptographic boot-signature checks;
+          it does not unfuse the robot or make an unsigned boot image valid.
+        </p>
+        <p>
+          See the archived <a href="https://pvindex.org/confluence/display/ENG/Fused+vs.+Un-fused+robots" target="_blank">pvindex fuse notes</a>
+          and <a href="https://pvindex.org/confluence/display/JN/How+to+point+a+robot+to+a+different+server+stack" target="_blank">server-stack notes</a>.
+        </p>
+        <p>
+          On an SSH-capable image, the archived check is
+          <code>cat /sys/devices/platform/tegra-fuse/odm_production_mode</code>:
+          <code>0x00000001</code> means fused and <code>0x00000000</code> means unfused.
+          For a fused unit, developer-versus-production identity is established by which
+          signed build it accepts; a nonzero public-key field alone is not the test.
         </p>
       </div>
 
@@ -188,33 +209,58 @@
       <h2>How the revival gets past OOBE</h2>
 
       <p>
-        Rather than try to satisfy a dead cloud, the mod in this guide <strong>takes the robot
-        out of <code>oobe</code> mode entirely.</strong> By dumping Jibo's storage and editing
-        his mode setting (this is the <code>mode.json</code> change in the
-        <a href="/manual-1.html">manual route</a>), we switch him into an open developer mode
-        that boots with SSH access and never runs the setup handshake at all.
+        Rather than try to satisfy a dead cloud, the recovery mod in this guide
+        <strong>takes the robot out of <code>oobe</code> mode entirely.</strong> By dumping
+        Jibo's storage and editing his software mode setting (the <code>mode.json</code>
+        change in the <a href="/manual-1.html">manual route</a>), we switch him into an
+        internal developer mode that boots with SSH access and does not run the setup
+        handshake. This is a software-mode change, not a fuse conversion.
       </p>
 
-      <p>
-        From there, the things the cloud used to provide are replaced locally, on your own
-        network — no <code>jibo.com</code> required:
-      </p>
+        <p>
+          From there, the things the cloud used to provide are replaced locally, on your own
+          network — no <code>jibo.com</code> required:
+        </p>
 
       <ul>
-        <li><a href="/post-mod.html">SSH &amp; JiboOS</a> — get a root shell and the community OS update</li>
+        <li><a href="/post-mod.html">SSH &amp; Next Steps</a> — get a root shell and choose compatible community software</li>
         <li><a href="/skills-manager.html">Skills Service Manager</a> — start the Be skill so Jibo comes to life</li>
         <li><a href="/asr-service.html">Local ASR</a> — on-device speech recognition, no cloud</li>
         <li><a href="/re-commander.html">Re-Commander</a> — control head, speech, camera, and an LLM voice loop from your browser</li>
       </ul>
 
       <div class="callout info">
-        <div class="callout-title">ℹ️ Could the cloud itself be rebuilt?</div>
+        <div class="callout-title">ℹ️ Recovery mode and server targeting are separate changes</div>
         <p>
-          In principle, yes — a replacement backend could answer the setup call, issue
-          credentials, serve updates, and run the notification socket, with DNS pointed at it
-          and an app build to match. That's a much heavier lift than the mod, and it still
-          wouldn't help fused production robots. For now, bypassing OOBE and going local is the
-          practical path, and it's what the rest of this guide covers.
+          The recovery step edits <code>/var/jibo/mode.json</code> to obtain developer mode
+          and SSH. Pointing a revived robot at a replacement service is a later configuration
+          task: depending on the stack and image, it can involve the Jetstream region settings,
+          server-service notification suffix, credentials, and TLS/native compatibility. It is
+          not a hardware-fuse conversion or necessarily a one-line URL edit. Follow the
+          current <a href="/openjibo-host.html">OpenJibo device instructions</a> for the
+          exact image-specific files.
+        </p>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">ℹ️ Replacement-cloud status</div>
+        <p>
+          Yes: the community has reverse-engineered enough of the original protocol to run
+          replacement services. <a href="/openjibo-host.html">OpenJibo</a> is the active
+          hosted/local replacement-cloud track, with robot-facing API, socket, and NeoHub
+          endpoints; its protocol oracle/capture work and OTA-assisted recovery are still
+          evolving. <a href="https://github.com/Jibo-Revival-Group/BEaker" target="_blank">BEaker</a>
+          is a separate, lightweight classic-OTA server for BEam; its catalog and package
+          downloads are real, while backup and media routes are compatibility no-ops. The
+          archived <a href="https://pvindex.org/confluence/display/RM/Creating+OTA+Packages" target="_blank">pvindex OTA notes</a>
+          document the historical package, target/filter, and version-matching behavior that
+          these projects are reproducing.
+        </p>
+        <p>
+          This does not mean that entering a server URL alone completes every stock OOBE
+          step. The current repeatable recovery path is still RCM/ShofEL2 followed by SSH.
+          An OOBE-first OTA bootstrap is under active test and may eventually reduce that
+          work, but it is not yet a universal, zero-touch procedure.
         </p>
       </div>
 
@@ -227,24 +273,26 @@
 
       <h2>A Note on OOBE Robots</h2>
 
-      <div class="callout danger">
-        <div class="callout-title">🚨 OTA update support is not yet implemented</div>
+      <div class="callout warn">
+        <div class="callout-title">⚠️ OOBE-first OTA is still a candidate path</div>
         <p>
           If your Jibo has <strong>never completed OOBE</strong> — meaning he still boots
           into the setup/connecting screen rather than his eye — he is stuck in
-          <code>oobe</code> mode with an earlier version of the firmware that the revival
-          project has not yet developed full support for.
+          <code>oobe</code> mode. Do not assume that the current OpenJibo hostname or a
+          hand-edited URL will make stock setup complete: OOBE also expects the historical
+          registration, credentials, update-manifest, TLS, and time-handling behavior.
         </p>
         <p>
-          The mod described in this guide can still get you SSH access, but the OTA update
-          path that a stock OOBE robot needs to reach a usable firmware state has
-          <strong>not been implemented yet</strong>. Until that support arrives, an
-          un-initialised OOBE robot cannot be used for most of the things this guide covers.
+          OpenJibo documents a promising OOBE-first OTA bootstrap under test, including
+          emulated setup/update endpoints and signed-by-manifest assets. Until that path is
+          repeatable for your image, the dependable owner-recovery route is the
+          <a href="/automod.html">RCM/AutoMod path</a>, followed by SSH and a deliberate
+          choice of OpenJibo, BEam, or another compatible community stack.
         </p>
         <p>
-          If this applies to you, join the
-          <a href="https://discord.gg/A34eFkKVFG">Discord</a> to follow progress and find out
-          when OOBE support becomes available.
+          Follow the community's <a href="https://github.com/Jibo-Revival-Group/JiboExperiments/blob/main/OpenJibo/docs/device-bootstrap.md" target="_blank">OpenJibo device-bootstrap notes</a>
+          and join the <a href="https://discord.gg/A34eFkKVFG">Discord</a> for image-specific
+          instructions. Preserve a full robot-specific dump before experimental writes.
         </p>
       </div>
 
