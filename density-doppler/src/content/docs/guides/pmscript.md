@@ -21,6 +21,7 @@ Now that we have access, your terminal should look something like this:
 That means you have root access to Jibo! Now what you want to do is run the Post-Mod script.
 So to run the script just do these commands:
 ```bash
+jibo-mount --rw
 curl -fsSL -k https://scripts.5x1.com/pm -o /tmp/pm.sh
 chmod +x /tmp/pm.sh
 sh /tmp/pm.sh
