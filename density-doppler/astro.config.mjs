@@ -7,7 +7,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Jibo Moding Guide',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/Jibo-Revival-Group' }],
+			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/Jibo-Revival-Group' }, { icon: 'discord', label: 'Discord', href: 'https://discord.gg/CBVJzkRGwN' }],
 			sidebar: [
                                 {
                                         label: 'Start Here',
@@ -17,7 +17,7 @@ export default defineConfig({
 					label: 'Guides',
 					items: [
 						// Each item here is one entry in the navigation menu.
-						{ label: 'Documentation', slug: 'guides/example' },
+						{ label: 'Post-Mod Setup', slug: 'guides/pmscript' },
 					],
 				},
 				{
