@@ -18,6 +18,7 @@ export default defineConfig({
 					items: [
 						// Each item here is one entry in the navigation menu.
 						{ label: 'Post-Mod Setup', slug: 'guides/pmscript' },
+						{ label: 'How to use BEam-a-Maker', slug: 'guides/bamtut' },
 					],
 				},
 				{
