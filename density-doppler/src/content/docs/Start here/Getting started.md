@@ -18,7 +18,7 @@ Using the automated Jibo modding tool will include a fast exploit PLUS the old /
  - Use community tools such as Re-Commander, Jibo-LLM, Be-a-Maker, BAM-Scratch, Home Assistant integration etc...
  - And connect to an OpenJibo Cloud Server (or self-host it if you want)
 # I don't have a Jibo yet
-You can look for second hand Jibos on eBay, Facebook marketplace, Vinted and more.... you can also use [this tool](https://buy.jibo.guide) to fetch Jibos currently on sale from popular websites like eBay and Goodwill
+You can look for second hand Jibos on eBay, Facebook marketplace, Vinted and more.... you can also use [this tool](https://buy.jibo.guide) to fetch Jibos currently on sale from popular websites like eBay and Goodwill.
 
 
 # What do I need
