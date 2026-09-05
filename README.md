@@ -11,21 +11,9 @@ Jibo was the world's first social robot. When the original company shut down its
 
 This is a project of the [Jibo Revival Group](https://github.com/Jibo-Revival-Group). We are not affiliated with Jibo Inc.
 
-## Guide Contents
-
-| Page | Description |
-|------|-------------|
-| Welcome | What this is, FAQ, choose your route |
-| Route A — Automated | Use `jibo_automod` to mod your Jibo automatically |
-| Route B — Manual (3 steps) | Build the Jibo-specific ShofEL2 payload, dump eMMC, modify `/var`, flash back |
-| SSH & Next Steps | Community software, useful ports, local voice round-trip |
-| OpenJibo Cloud | Run the replacement cloud locally or use the managed path |
-| BEam / OTA Notes | Current system skills and OpenJibo OTA flow status |
-| Troubleshooting | Common failure modes and fixes |
-
 ## Running Locally
 
-The site is static HTML served by a minimal Express server for local development. GitHub Pages serves the `docs/` folder directly in production.
+The site uses Starlight docs, and is served statically on gh-pages
 
 ```bash
 npm install
