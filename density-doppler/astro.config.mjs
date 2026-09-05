@@ -25,6 +25,7 @@ export default defineConfig({
 					label: 'Guides',
 					items: [
 						{ label: 'How to use BEam-a-Maker', slug: 'guides/bamtut' },
+						{ label: 'How to Pair Home Assistant', slug: 'haint' },
 					],
 				},
 				{
