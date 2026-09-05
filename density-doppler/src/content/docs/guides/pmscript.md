@@ -12,7 +12,7 @@ Now that you have SSH access to your robot, it's time to set-up the robot side! 
 ```bash
 ssh root@[Jibo IP Address]
 ```
-The password is "jibo"
+The password is "jibo". (you may get a small notice, just say yes)
 ## Run the Post-Mod script
 Now that we have access, your terminal should look something like this:
 ```bash
