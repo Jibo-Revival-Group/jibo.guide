@@ -19,12 +19,11 @@ export default defineConfig({
 					label: 'Mod a Jibo',
 					items: [
 						{ label: 'Using JiboAutoMod', slug: 'mod/automod' },
+						{ label: 'Post-Mod Setup', slug: 'mod/pmscript' },
 					],
 				},{
 					label: 'Guides',
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Post-Mod Setup', slug: 'guides/pmscript' },
 						{ label: 'How to use BEam-a-Maker', slug: 'guides/bamtut' },
 					],
 				},
