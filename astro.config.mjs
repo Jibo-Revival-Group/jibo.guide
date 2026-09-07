@@ -29,6 +29,10 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Original Server Home',
+					items: [{ autogenerate: { directory: '[original] Server Home' } }],
+				},
+				{
 					label: 'Reference',
 					items: [
 						{ label: 'Jetstream Server Override', slug: 'reference/jetstream' },
