@@ -8,9 +8,9 @@ category: "Completion"
 
 # To implement:
 
-- Classic Services
-- Server Local Environment Setup (outdated)
-- Pegasus Development Process
+- Classic Services (Done)
+- Server Local Environment Setup (outdated) (Done)
+- Pegasus Development Process (Done)
 - Pegasus CLI
 - The Jetstream Service API
 - The Jetstream Service API
