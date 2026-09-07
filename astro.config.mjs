@@ -32,6 +32,11 @@ export default defineConfig({
 					label: 'Original Server Home',
 					items: [{ autogenerate: { directory: '[original] Server Home' } }],
 				},
+                                {
+					label: 'Platform Software',
+					items: [{ autogenerate: { directory: 'Platform Software' } }],
+				},
+
 				{
 					label: 'Reference',
 					items: [
