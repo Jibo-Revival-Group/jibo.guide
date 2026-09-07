@@ -1,0 +1,135 @@
+---
+title: Server Local Environment Setup (outdated)
+description: none
+category: "original Server"
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+
+import { Aside } from '@astrojs/starlight/components';
+
+
+(Original by: Dmytro Milashenko)
+
+
+<Aside type="danger" title="Outdated!">Use [ Not implemented yet :) ] instead</Aside>
+
+
+## Initial setup 
+1. Download and install latest Docker software (Community Edition) https://www.docker.com/docker-mac
+2. Install docker-compose: https://docs.docker.com/compose/install/
+
+3. Get Account for Jibo's docker hub https://hub.docker.com/u/jiborobot and log in to this account locally
+4. Verify at least node version 8.9 for installed locally for 'async' keyword (using homebrew: brew install node)
+5. Install https://stedolan.github.io/jq/ tool (using homebrew: brew install jq)
+6. Clone (Depricated Link)https://github.com/jiborobot/srv-service-orchestration
+7. Clone (Depricated Link)https://github.com/jiborobot/srv-service-integration/
+8. Get AWS user from DevOps - Open a User Access request (Jibo User Access Approval Process). It should be user in dev AWS account. 
+        a. User should be in the ServerDev group.
+        b. arn:aws:iam::668238866179:role/devshared-RobotRole-1IF7QKAZF2Y7T role should have user in the list of "Trusted entities" TODO: Find a way to do this for group
+9. Configure AWS CLI:
+        1. Instal AWS CLI http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html (using homebrew: brew install awscli)
+        2. Configure AWS CLI with profiles as following:
+```
+$ aws configure --profile dev
+AWS Access Key ID [None]: AKIA...
+AWS Secret Access Key [None]: je7....
+Default region name [None]: us-east-1
+Default output format [None]: json
+```
+
+        3. Ensure file ~/.aws/credentials exist and has lines like 
+```
+[dev]
+aws_access_key_id = AKI...
+aws_secret_access_key = ...
+```
+
+<Aside type="caution" title="Shared Ports!">
+Please ensure that you dont have services running on your host at ports:
+
+27017, 27018, 8080-8090
+</Aside>
+
+
+
+
+## Minimal service set
+For most case you don't need all services running locally, but just some.
+
+Open `docker-compose-standalone.yml` file in the `srv-service-orchestration` project you've cloned with your favorite editor and comment out (with leading # symbol) services except:
+
+ - account
+ - key
+ - log
+ - notification
+ - robot
+ - robotread
+ - security
+ - update
+ - mongo
+ - redis
+
+
+## Run
+In Mac Terminal change dir to the folder you've cloned the `srv-service-orchestration` project and run the following command in it and get some tea. It will take some time during initial attempt.
+```sh
+docker-compose -f ./docker-compose-standalone.yml up
+#NOTE: if this command does not work, run 
+
+docker login
+```
+
+and use your docker hub credentials
+
+This will download all required images and start them in your local docker service.
+
+Open http://localhost:8080 in browser to see greeting message.
+
+## Run tests locally
+In the srv-service-integration project folder run 
+```sh
+npm install
+npm run local-test
+```
+
+## Add new Service
+### Add service definition to the compose file
+```sh
+    lps: # change to your unique name of the service
+    build:
+      context: ./node-docker # use local docker image to run the service
+    container_name: lps # change to your unique name of the service
+    depends_on: # if service depends on any other service 
+      - account
+    env_file: docker-compose.env # file to set env properties
+    environment: # service-specific env params.
+     - ETCO_server_mongoDb=lps
+     - ETCO_server_name=lps
+    expose:
+      - "8080"
+    networks:
+      internal:
+        aliases:
+          - lps.jibo.aws # change to your DNS alias this service will be accessed by other services same as NET_lps value
+    volumes:
+      - ../srv-lps-ws:/data # change to your project root for mapping to the /data folder inside container
+      - ~/.aws/credentials:/root/.aws/credentials
+```
+
+
+
+## Add dependency to new version of Jibo Server Client
+If your new service is represented in Jibo Service Client, Integration tests must depend on your local version of JSC to run.
+
+In order to depend to local version of JSC, edit srv-service-integration/package.json and change to "@jibo/jibo-server-client": `"file:/<PATH_TO_YOUR_LOCAL_JSC_DIR>"`,
+
+## Run tests locally with the new service
+Add new `<YOUR_SERVICE>.spec.js` file in srv-service-integration/test folder.
+
+Your service tests shoyuld not depend on tests of other services. Check other tests to understand how to create new users, connect to server endpoint etc.
+
+Run tests with:
+```sh
+npm run local-test
+```
