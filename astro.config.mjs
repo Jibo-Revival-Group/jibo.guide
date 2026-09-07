@@ -32,6 +32,8 @@ export default defineConfig({
 					label: 'Reference',
 					items: [
 						{ label: 'Jetstream Server Override', slug: 'reference/jetstream' },
+						{ label: 'Jibo SSM', slug: 'reference/ssm' },
+						{ label: 'Useful Ports', slug: 'reference/useful-ports' },
 					],
 				},
 			],

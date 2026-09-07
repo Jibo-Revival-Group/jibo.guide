@@ -23,9 +23,9 @@ npm start
 
 ## Contributing
 
-Content lives in `docs/*.html`. The navigation (sidebar, prev/next, breadcrumbs) is driven by `docs/js/nav.js` — add new pages there to wire them into the layout automatically.
+Content lives in `src/content/docs/*.md`. The navigation (sidebar, prev/next, breadcrumbs) is driven by `docs/js/nav.js` — add new pages there to wire them into the layout automatically.
 
-Pull requests and issue reports are welcome. For real-time discussion join the community **[Discord](https://discord.gg/A34eFkKVFG)**.
+Pull requests and issue reports are welcome. For real-time discussion join the community **[Discord](https://discord.gg/CBVJzkRGwN)**.
 
 ## License
 

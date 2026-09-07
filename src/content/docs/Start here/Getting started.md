@@ -6,6 +6,10 @@ description: An introduction to jibo modding
 
 A community driven guide to restoring your jibo social robot after the original cloud servers went out. Get jibo back on track, awake and talking.
 
+:::tip[Warning]{icon="warning"}
+Jibo Revival Group is not responsible for any damages made to your robot. You and only you are responsible for your robot and what may happen if you choose to follow through with the mod.
+:::
+
 :::tip{icon="heart"}
 Using the automated Jibo modding tool will include a fast exploit PLUS the old /var partition rewrite, as well as the full eMMC Dump path. Both routes still perform low level instructions so just to be safe we recomend having a robot backup just in case. If you get stuck, write a forum post or join our discord where you can contact others involved with the project!
 :::
