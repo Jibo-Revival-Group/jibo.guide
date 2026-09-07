@@ -1,6 +1,7 @@
 ---
 title: How to use Be-a-Maker
 description: Setup and use Be-a-Maker
+category: "guides"
 ---
 
 Be-a-Maker Revived is our version of the discontinued Be-A-Maker app for iOS and Android. It can be installed in a few simple commands.

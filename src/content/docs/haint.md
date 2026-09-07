@@ -1,6 +1,7 @@
 ---
 title: How to Pair Home Assistant
 description: How you pair with Home Assistant
+category: ""
 ---
 
 ## Install the Integration
