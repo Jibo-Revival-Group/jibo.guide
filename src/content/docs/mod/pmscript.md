@@ -1,6 +1,7 @@
 ---
 title: Complete The Mod
 description: Installing BEam and pointing your robot at a server.
+category: "mod"
 ---
 
 Now that you have SSH access to your robot, it's time to set up the robot side! This will:

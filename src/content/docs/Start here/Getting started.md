@@ -1,6 +1,7 @@
 ---
 title: Getting started
 description: An introduction to jibo modding
+category: "Start here"
 ---
 # Welcome!
 

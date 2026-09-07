@@ -1,6 +1,7 @@
 ---
 title: Using JiboAutoMod
 description: How to use JiboAutoMod
+category: "mod"
 ---
 
 :::tip[Info]{icon="information"}

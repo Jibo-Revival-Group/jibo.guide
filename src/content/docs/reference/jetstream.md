@@ -1,6 +1,7 @@
 ---
 title: Jetstream Server Override
 description: How Jetstream Override works
+category: "reference"
 ---
 
 Typically Jibo uses jibo.com servers which no longer exist. What Jetstream override does is that it overrides the default settings for Jetstream (what he uses for Hey Jibo requests) so it can use a different server such as our own.
