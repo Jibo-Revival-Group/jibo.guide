@@ -31,12 +31,21 @@ cd JiboAutoMod
 ## Install Dependencies
 The command used differs depending on which distro you use.
 ### Debian-based Distro
-(This includes Raspberry Pi OS)
+This is for:
+- Debian
+- Ubuntu
+- Raspberry Pi OS
+- Zorin
+etc
 ```bash
 sudo apt update
 sudo apt install build-essential libusb-1.0-0-dev git python3 python3-pip gcc-arm-none-eabi libnewlib-arm-none-eabi
 ```
 ### Arch-based Distro
+This is for:
+- Arch
+- CachyOS
+etc
 ```bash
 sudo pacman -S --needed base-devel libusb git python python-pip arm-none-eabi-gcc arm-none-eabi-newlib
 ```

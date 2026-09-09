@@ -29,4 +29,4 @@ curl -fsSL -k https://scripts.5x1.com/pm -o /tmp/pm.sh
 chmod +x /tmp/pm.sh
 sh /tmp/pm.sh
 ```
-This will take about 3-10 minutes, and when it completes the script will automatically reboot your robot. After your robot has rebooted it should function with the 5x1 server. If you are experiencing problems with that, please join the [Jibo Revival Group Discord](https://discord.gg/CBVJzkRGwN).
+This will take about 3-10 minutes, and when it completes the script will automatically reboot your robot. After your robot has rebooted it should function with the 5x1 server. If you are experiencing problems with that, please join the [Jibo Revival Group Discord](https://discord.gg/CBVJzkRGwN). Other than that, your robot should now be running 5x1 and work just fine! If you don't plan on tinkering with your robot, this is a good point to stop as you shouldn't need any other guide(s). Have a wonderful day!
