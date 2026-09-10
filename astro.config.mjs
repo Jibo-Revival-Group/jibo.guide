@@ -48,4 +48,5 @@ export default defineConfig({
 			],
 		}),
 	],
+	site: 'https://jibo.guide'
 });
