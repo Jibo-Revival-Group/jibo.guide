@@ -1,0 +1,88 @@
+---
+title: Pegasus CLI
+description: none
+category: "original Server"
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+
+import { Aside } from '@astrojs/starlight/components';
+
+
+(Original by: Created by Sigurdur (Siggi) Orn Adalgeirsson, last modified on 2018-05-25)
+
+
+
+The Pegasus CLI is a Command Line Interface tool which organizes all the common scripts and commands you need to run to manage the pegasus monorepo.
+
+## Usage
+The main entrypoint for the CLI tool is a JS file at the root of the monorepo named "pegasus.js" 
+```sh
+./pegasus.js --help                                                                                                                                 Usage: ./pegasus.js [arguments] <command> [cmd arguments]
+
+Arguments:
+    -d, --docker : Run command dockerized
+    -h, --help : Prints this message
+
+Commands:
+      bootstrap                 Installs all dependencies in the monorepo
+      build                     Builds all packages or any subset
+      change-dep-version        For all packages that depend on the target library, change the version of that dependency
+      clean                     Cleans build artifacts in all packages or any subset
+      docker-run                Runs a command inside a docker container, or runs an interactive shell inside the container
+      find-undeclared           Finds all packages that use dependencies which they don't declare in package.json
+      init                      A complete (re-)initialization of the monorepo. Fetches all dependencies and builds all packages.
+      lint                      Lint all packages or any subset
+      rebuild                   Rebuilds all packages whose transpiled code is older than the source code
+      retarget-jetstream        Edits Jetstream configuration on bot to point to any desired Hub location
+      test                      Tests all packages or any subset
+The basic command is
+```
+
+
+`./pegasus.js <command> [command arguments]`
+
+Where the command is one of the options listed above and available by using the "--help" option. 
+
+To receive further help for any of the available commands, do the following `./pegasus.js <commad> --help`.  Example:
+```sh
+./pegasus.js build --help
+Builds all packages or any subset
+
+Options:
+      -w --workspace     [default=packages]: Which workspace to build
+      -c --concurrency   [default=4]: What Lerna concurrency to use
+```
+
+Which will print out more instructions for that particular command.
+
+## Run in Docker
+There are three notions of running something in docker:
+
+ - Run the following general bash command in the docker container. Example "./pegasus.js docker-run ls" which executes the command "ls" inside the docker container.
+ - Open an interactive shell inside the docker container. Example: "./pegasus.js docker-run --interactive" which allows you to enter any number of commands in the shell until you choose to exit.
+ - Run this Pegasus CLI command in docker: This means basically run this CLI command as if we were already inside an interactive docker shell. Example: "./pegasus.js --docker build" is equivalent to "./pegasus.js docker ./pegasus.js build"
+
+
+For example, if I were to run "./pegasus.js build" on OSX, I would get an error message saying "This command needs to run in Linux". In which case I would simply amend my command to be "./pegasus.js -d build"  
+
+## Yarn Scripts
+All the yarn scripts in the "package.json" at the root of the monorepo have been updated to use the new Pegasus CLI tools. 
+
+## Examples
+ 
+```sh
+./pegasus.js init                  // Fetches all deps and builds all packages
+./pegasus.js bootstrap             // Fetches all deps
+./pegasus.js rebuild               // Builds all out-of-date packages
+./pegasus.js -d build              // Builds all packages
+./pegasus.js -d build packA packB  // Builds subset of packages
+./pegasus.js -d test               // Tests all packages
+./pegasus.js -d test packA packB   // Tests subset of packages
+```
+
+
+
+
+
+

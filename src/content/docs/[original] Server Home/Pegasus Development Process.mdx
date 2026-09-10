@@ -1,0 +1,362 @@
+---
+title: Server Local Environment Setup (outdated)
+description: none
+category: "original Server"
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+
+import { Aside } from '@astrojs/starlight/components';
+
+
+(Original by: Sigurdur (Siggi) Orn Adalgeirsson, last modified by Dmytro Milashenko on 2018-06-19)
+
+
+
+## Purpose of This Document
+This document conveys high level instructions for how to develop in the Pegasus project sphere.
+
+ 
+
+## Relevant Links
+*Architecture docs*
+
+ - Pegasus Architecture: https://docs.google.com/document/d/1vtwpIeb2obxoYbv6ioyhyc-q6BQDdlb7inw0hvzkv2w
+ - Cloud Skill TDD: https://docs.google.com/document/d/18ff7zT_AK_4w-5xUUHbiF4k1tSQYAv7fmhgim1nhc1E
+*Repositories*
+
+ - Pegasus Typescript monorepo: https://github.com/jiboV2/v1.x
+ - V1.0 Monorepo: https://github.jibo.com/sdk/sdk
+ - Buildroot: TODO
+## Code Branching
+ - For sdk monorepo, follow naming guidelines on Monorepo Pull Request Checklist; branch off of the "pegasus" branch until Pegasus lands in a sprint-specific branch.
+ - For pegasus monorepo, follow naming guidelines on Pegasus Pull Request Checklist
+## Rebuilding Packages
+There are a few ways to build packages:
+```sh
+# Option A: Build all packages from repo root
+yarn run docker:build
+# Option B: Build an individual package (e.g. hub) from repo root
+yarn run docker:build hub
+# Option C: Build an individual package (e.g. hub) from its own directory
+cd packages/hub
+yarn run docker:build
+# Option D: Build packages in the docker interactive environment
+yarn run docker:interactive
+# - Build all packages
+yarn run build
+# - Build one package (e.g. hub) from root
+yarn run build hub
+# - Build one package (e.g. hub) from its own directory
+cd packages/hub
+yarn run build
+```
+
+
+If you want to only build packages whose source has changed since it was last built (this can be very useful when jumping between branches).
+```sh
+yarn run docker:rebuild
+```
+
+
+
+## Testing Packages
+Gotchas:
+
+ - If you make changes to code, you must rebuild the affected packages to transpile to JS
+ - If you make changes to tests, these are not transpiled to JS at build time, but at test time
+```sh
+# Option A: Test all packages from repo root
+yarn run docker:test
+# Option B: Test an individual package (e.g. hub) from repo root
+yarn run docker:test hub
+# Option C: Test an individual package (e.g. hub) from its own directory
+cd packages/hub
+yarn run docker:test
+# Option D: Test packages in the docker interactive environment
+yarn run docker:interactive
+# - Test all packages
+yarn run test
+# - Test one package (e.g. hub) from root
+yarn run test hub
+# - Test one package (e.g. hub) from its own directory
+cd packages/hub
+yarn run test
+```
+
+
+The test suite uses mocha, chai, and sinon, if you are looking for documentation. Source maps are supported.
+
+## Running Services and Skills Locally
+Please see: (Unimplemented) How to Run Pegasus Skills
+
+## Running Scripts in Docker
+All of the yarn scripts that follow this pattern: yarn run docker:x
+
+are meant to be run from outside of docker, and generally correspond to running yarn run x when inside of the container (by running yarn run docker:interactive).
+
+You can also run arbitrary commands inside the docker container, either as a single command:
+```sh
+yarn run docker:run ls -la
+#or interactively:
+
+yarn run docker:interactive
+ls -la
+```
+
+This can be done either at the root of the repo, or in any package directory.
+
+# Building Docker Containers
+You only need to build the docker containers at initial setup and whenever someone changes the configuration either in docker-compose.yml or any Dockerfile. Any changes to regular source code or other configuration files will be picked up by the containers since they have the current directory linked, and only require a TypeScript-to-JavaScript rebuild, not a rebuild of the containers themselves.
+
+To rebuild containers without running all of `./scripts/docker-init.sh` you can:
+```sh
+[all]
+yarn run container:build
+[individual]
+yarn run container:build hub
+```
+
+
+
+
+
+## Troubleshooting
+Running from the top level of your checkout:
+ 
+ ```sh
+ ./scripts/docker-destroy-all.sh
+ ./scripts/docker-init.sh
+```
+
+will take maybe a few dozen minutes, but will clear your cache of Docker containers and all dependencies and rebuild the entire repo. This may cure weird problems caused by changes in Dockerfiles or JavaScript dependencies.
+
+## Local Docker Deployment
+
+<Aside type="tip" title="Attention">
+This is the way to start all environment locally.
+
+As of editing time, works with the branch https://github.com/jiboV2/pegasus/tree/milashenko/docker-compose
+
+</Aside>
+
+1. Download and install latest Docker software (Community Edition) https://www.docker.com/docker-mac
+2. Install docker-compose: https://docs.docker.com/compose/install/
+
+3. Verify at least node version 8.9 for installed locally for 'async' keyword (using homebrew: brew install node)
+4. Get AWS user from DevOps - Open a User Access request (Jibo User Access Approval Process). It should be user in dev AWS account. 
+
+        1. User should be in the ServerDev group (Jibo dev account). Alternatively user should have the following permissions:
+
+```js
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "s3:ListAllMyBuckets",
+            "Resource": "arn:aws:s3:::*",
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation"
+            ],
+            "Resource": [
+                "arn:aws:s3:::com.jibo.dev.shared"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::com.jibo.dev.shared/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "ec2:DescribeInstances",
+                "ecs:*",
+                "cloudwatch:*",
+                "sns:*",
+                "sqs:*",
+                "logs:*",
+                "elasticloadbalancing:*",
+                "ses:SendRawEmail",
+                "ses:SendEmail"
+            ],
+            "Resource": "*",
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation"
+            ],
+            "Resource": [
+                "arn:aws:s3:::com.jibo.dev.services"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:PutObjectAcl"
+            ],
+            "Resource": [
+                "arn:aws:s3:::com.jibo.dev.services/*"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+```js
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Stmt1524497398000",
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::668238866179:role/RobotRole"
+            ]
+        }
+    ]
+}
+```
+
+        2. arn:aws:iam::668238866179:role/devshared-RobotRole-1IF7QKAZF2Y7T role should have user in the list of "Trusted entities"  where Where RobotRole is has permissions:
+```js
+{
+    "Statement": [
+        {
+            "Action": [
+                "s3:PutObject",
+                "s3:AbortMultipartUpload",
+                "s3:CompleteMultipartUpload",
+                "s3:CreateMultipartUpload",
+                "s3:Upload",
+                "s3:UploadPart"
+            ],
+            "Resource": "arn:aws:s3:::com.jibo.dev.services/lps/*",
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+5. Configure AWS CLI:
+        1. Instal AWS CLI http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html (using homebrew: brew install awscli)
+        2. Configure AWS CLI with profiles as following:
+```sh
+$ aws configure --profile dev
+AWS Access Key ID [None]: AKIA...
+AWS Secret Access Key [None]: je7....
+Default region name [None]: us-east-1
+Default output format [None]: json
+```
+
+        3. Ensure file ~/.aws/credentials exist and has lines like 
+```toml
+[dev]
+aws_access_key_id = AKI...
+aws_secret_access_key = ...
+``` 
+
+ 
+
+        4. Ensure docker-compose.env file has same values for AWS_PROFILE and AWS_REGION:
+```toml
+....
+ 
+AWS_PROFILE=dev
+AWS_REGION=us-east-1
+....
+```
+
+6. Run the following command to start all containers locally.
+
+
+```sh
+[all]
+yarn run container:up
+#This will run all containers.
+```
+
+
+Run `docker-compose ps` to ensure services are started. `docker-compose logs -f <CONTAINER_NAME> ` – to see container logs for errors.
+
+## Configure Mobile App to point local server
+Follow instructions from (Unimplemented)How to point a robot to a different server stack to set mobile app endpoint. Use `http://<YOUR_HOST_IP_ADDRESS>/` as Endpoint
+
+## Configure robot to point local server
+While How to point a robot to a different server stack tells to change config.json, we'll update robot's /etc/hosts. So when you have established SSH connected via Frankencable execute the following commands:
+```sh
+echo "YOUR_HOST_IP_ADDRESS stg-entrypoint.jibo.com">> /etc/hosts
+echo "YOUR_HOST_IP_ADDRESS stg-entrypoint-socket.jibo.com">> /etc/hosts
+echo "YOUR_HOST_IP_ADDRESS stg-hub.jibo.com">> /etc/hosts
+```
+
+
+So that robot has /etc/host file like the following:
+```sh
+# cat /etc/hosts 
+127.0.0.1	localhost
+127.0.1.1	Ruby-Uniform-Bread-Madras
+192.168.144.122 stg-entrypoint.jibo.com
+192.168.144.122 stg-entrypoint-socket.jibo.com
+192.168.144.122 stg-hub.jibo.com
+``` 
+
+## Dev Cloud Deployment
+After each merge to the master branch in the pegasus repo a Jenkins job called docker-hub does the following:
+
+ - Builds Docker images using Dockerfile.deploy files found in packages/*
+ - Pushes built images to Docker hub (jiborobot/hub:latest, jiborobot/personal-report-skill:latest, etc.)
+
+Then a Jenkins job called `dev-deploy-pegasus-service` does the following:
+
+ - Gets :latest Docker images from Docker hub
+ - Gets environment variables for services environment from ace.development/blue/Environment.json (or the green equivalent)
+ - Redeploys services to AWS
+So, to check that deploy was successful, ensure that:
+
+ - The docker-hub job succeeded and :latest images were pushed to Docker hub
+ - The dev-deploy-pegasus-service job job succeeded
+
+
+## Service URLs and how to access them
+When developing locally, the Hub finds skills by reading packages/hub/resources/skills/skills-local.json. The Hub in the dev cloud looks in `packages/hub/resources/skills/skills-dev.json`. All other services use (Unimplemented)Pegasus Environment Variables to find each other. In skills-dev.json are host names like hub.jibo.aws, personal-report-skill.jibo.aws, etc. These are only accessible when going from one Docker container in AWS to another. They are not accessible from office IP addresses.
+
+For security reasons, only the hub is externally accessible, and it is hosted at dev-hub.jibo.com. For example, try loading https://dev-hub.jibo.com/healthcheck to see if it is running.
+
+To send a request to dev-hub.jibo.com using the Pegasus protocol, go to pegasus/packages/hub-client-cli and run this:
+```sh
+yarn docker:run env ETCO_server_webTokenSecret=uHGhXhdXzBybGX7YHuEwAFZC node scripts/listen.js -o dev-hub.jibo.com -p 443 --secure
+```
+
+## Staging and Production Deployment
+(not yet implemented, will probably happen manually at end of sprint)
+
+## Generating Documentation
+To generate documentation, run one of the following:
+```sh
+yarn run docs:open
+
+# or
+
+yarn run docs
+open docs/index.html
+``` 
+
+See Jibo(Unimplemented) API docs for v1 apis that hang off the jibo module.
+
