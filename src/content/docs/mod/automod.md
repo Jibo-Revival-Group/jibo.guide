@@ -1,8 +1,12 @@
 ---
-title: Using JiboAutoMod
-description: How to use JiboAutoMod
+title: Using JiboAutoMod (Legacy)
+description: How to use JiboAutoMod, the original mod tool
 category: "mod"
 ---
+
+:::caution[Legacy]
+JiboAutoMod was the original mod tool, and the [Jibo DFU Mod Toolkit](/mod/dfu-toolkit/) has replaced it. The toolkit is a single download for Windows, Mac and Linux, needs nothing compiled, and saves a backup before every change. These steps are kept here for anyone who already uses JiboAutoMod. A Jibo modded with it works with the rest of this guide.
+:::
 
 :::tip[Info]{icon="information"}
 The modding process is entirely reversible. If you want to later unmod your robot you can (assuming you do full dump) revert back to before you started the mod.
@@ -88,4 +92,4 @@ python3 jibo_automod.py --mode-json-only
 ## Wait
 As your robot dumps you have to wait a decent amount of time. I encourage putting on a movie or long-form video.
 ## Reboot robot
-Now that the command has finished running and your robot has been modded, reboot him! Once Jibo has finished rebooting, you should see a green checkmark instead of Jibo's eye. This means your robot is now modded! Keep the IP address you noted down, as you'll need it for running the Post-Mod script. Cya there! :3
+Now that the command has finished running and your robot has been modded, reboot him! Once Jibo has finished rebooting, you should see a green checkmark instead of Jibo's eye. This means your robot is now modded! Keep the IP address you noted down, as you'll need it to connect him to a server. Next, [choose a server](/start-here/choose-a-server/). Cya there! :3

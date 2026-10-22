@@ -18,8 +18,10 @@ export default defineConfig({
 				{
 					label: 'Mod a Jibo',
 					items: [
-						{ label: 'Using JiboAutoMod', slug: 'mod/automod' },
-						{ label: 'Post-Mod Setup', slug: 'mod/pmscript' },
+						{ label: 'Using the DFU Toolkit', slug: 'mod/dfu-toolkit' },
+						{ label: 'Connect to 5x1', slug: 'mod/pmscript' },
+						{ label: 'Connect to Phoenix', slug: 'mod/phoenix' },
+						{ label: 'JiboAutoMod (Legacy)', slug: 'mod/automod' },
 					],
 				},{
 					label: 'Other',
