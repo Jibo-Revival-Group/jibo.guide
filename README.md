@@ -18,7 +18,7 @@ The site uses Starlight docs, and is served statically on gh-pages
 ```bash
 npm install
 npm start
-# → http://localhost:3000
+# → http://localhost:4321
 ```
 
 ## Contributing
