@@ -13,6 +13,28 @@ Now that you have SSH access to your robot, it's time to set up the robot side! 
 ## Before You Start
 Jibo needs to be in int-developer mode and on your Wi-Fi, and you need his IP address. The [DFU Mod Toolkit](/mod/dfu-toolkit/) does all of that: follow it through [Restart Jibo and Find His IP](/mod/dfu-toolkit/#restart-jibo-and-find-his-ip). His IP is on his boot screen. If you modded him with [JiboAutoMod (Legacy)](/mod/automod/), use the IP you wrote down then.
 
+:::caution[Coming from Phoenix?]
+If Jibo is running [Phoenix](/mod/phoenix/), his firewall must be open before you can switch him to 5x1. BEep and the steps below both log in to Jibo over SSH, and his firewall blocks that. Putting him in int-developer mode with [Set int-developer Mode and Wi-Fi](/mod/dfu-toolkit/#set-int-developer-mode-and-wi-fi) opens it.
+:::
+
+## Use BEep (Easiest)
+BEep is 5x1's phone app. It can run the Post-Mod script on Jibo for you, so you don't need a computer or a terminal. Your phone has to be on the same Wi-Fi as Jibo.
+
+1. Install BEep from [apps.5x1.com](https://apps.5x1.com):
+   - **iPhone or iPad:** add BEep with AltStore or SideStore using the source on that page.
+   - **Android:** download the APK, or tap "Add to F-Droid" to get updates through F-Droid.
+2. Open BEep and tap **Convert a Jibo to 5x1**.
+3. Type in Jibo's IP address and tap **Convert to 5x1**.
+4. Keep BEep open while it works. It shows the script's progress as it goes, and this takes several minutes. (If BEep closes or your phone locks, the script keeps going on Jibo. Open Convert again with the same IP to keep following it.)
+5. When BEep says Jibo is restarting into 5x1, you're done. After a couple of minutes he'll show up under **Your robots** in BEep.
+
+If BEep says it couldn't log in, check the IP address and make sure Jibo was modded and is in int-developer mode. If it says the script stopped with an error, its output is shown in BEep; share that in the [Jibo Revival Group Discord](https://discord.gg/CBVJzkRGwN).
+
+Once it finishes, skip to [Update Services](#update-services).
+
+## Use a Computer
+If you'd rather do it yourself, you can run the same script over SSH.
+
 You'll run these commands from a terminal on your computer: Terminal on a Mac or Linux, or PowerShell on Windows.
 ## SSH into Jibo
 Run this command on your computer, replacing "[Jibo IP Address]" with your Jibo's IP.
